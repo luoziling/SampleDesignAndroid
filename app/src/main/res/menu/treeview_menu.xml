@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/expandAll"
+        app:showAsAction="never"
+        android:title="ExpandAll" />
+    <item
+        app:showAsAction="never"
+        android:id="@+id/collapseAll"
+        android:title="CollapseAll" />
+    <item
+        app:showAsAction="never"
+        android:id="@+id/saveTreeNode"
+        android:title="保存树形视图"
+        />
+    <item
+        app:showAsAction="never"
+        android:id="@+id/addConclusion"
+        android:title="添加方案/结论"
+        />
+
+    <item
+        app:showAsAction="never"
+        android:id="@+id/CalculationResults"
+        android:title="结论计算"
+        />
+
+</menu>
