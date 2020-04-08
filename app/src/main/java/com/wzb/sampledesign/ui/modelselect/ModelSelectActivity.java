@@ -1,36 +1,33 @@
 package com.wzb.sampledesign.ui.modelselect;
 
-import androidx.lifecycle.ViewModelProviders;
-
-import android.content.Context;
-import android.os.Bundle;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
 import com.wzb.sampledesign.R;
+import com.wzb.sampledesign.adapter.ModelAdapter;
 import com.wzb.sampledesign.pojo.ProjectInformation;
+import com.wzb.sampledesign.ui.asynctask.GetAllModelThread;
+import com.wzb.sampledesign.ui.modeldetail.ModelDetailActivity;
 import com.wzb.sampledesign.util.Constant;
 import com.wzb.sampledesign.util.FastjsonUtil;
 
 import java.util.List;
 
-public class ModelSelect extends Fragment implements AdapterView.OnItemClickListener {
-
+public class ModelSelectActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 	@BindView(R.id.pull_to_refresh_ms)
 	QMUIPullRefreshLayout mPullRefreshLayout;
 
@@ -41,28 +38,17 @@ public class ModelSelect extends Fragment implements AdapterView.OnItemClickList
 
 	private Handler mHandler;
 
-
-	private ModelSelectViewModel mViewModel;
-
-	public static ModelSelect newInstance() {
-		return new ModelSelect();
-	}
-
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-							 @Nullable Bundle savedInstanceState) {
-		View root = inflater.inflate(R.layout.model_select_fragment, container, false);
-		ButterKnife.bind(this,root);
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_model_select);
+		ButterKnife.bind(this);
+
+		mHandler = new MSHandler(this);
+
+		msListView.setOnItemClickListener(this);
 
 		initData();
-		return root;
-	}
-
-	@Override
-	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		mViewModel = ViewModelProviders.of(this).get(ModelSelectViewModel.class);
-		// TODO: Use the ViewModel
 	}
 
 	private void initData() {
@@ -88,7 +74,7 @@ public class ModelSelect extends Fragment implements AdapterView.OnItemClickList
 						onDataLoaded();
 //						mPullRefreshLayout.finishRefresh();
 					}
-				}, 2000);
+				}, 1000);
 			}
 		});
 	}
@@ -104,6 +90,9 @@ public class ModelSelect extends Fragment implements AdapterView.OnItemClickList
 //		ConThread conThread = new ConThread(mHandler);
 //		Thread getThread = new Thread(conThread);
 //		getThread.start();
+		GetAllModelThread getAllModelThread = new GetAllModelThread(mHandler);
+		Thread getAllModel = new Thread(getAllModelThread);
+		getAllModel.start();
 
 
 	}
@@ -117,6 +106,12 @@ public class ModelSelect extends Fragment implements AdapterView.OnItemClickList
 		Constant.PROJECT_NAME = modelList.get(i).getProjectName();
 		// 开启新的决策界面
 		// todo:尝试用fragment替换
+		// 算了。。老老实实Activity
+		// fragment适合一个主界面（Activity）中包含多个fragment
+
+		// 通过保存在方法区的static常量来判断当前模型不需要传值
+		Intent mdIntent = new Intent(this, ModelDetailActivity.class);
+		startActivity(mdIntent);
 
 //		Bundle bundle = new Bundle();
 //		bundle.putString("conDetail",gson.toJson(docList.get(position)));
@@ -127,9 +122,9 @@ public class ModelSelect extends Fragment implements AdapterView.OnItemClickList
 	}
 
 
-	class ConHandler extends Handler{
+	class MSHandler extends Handler{
 		private Context context;
-		ConHandler(Context context){
+		MSHandler(Context context){
 			this.context = context;
 		}
 		@Override
@@ -140,14 +135,26 @@ public class ModelSelect extends Fragment implements AdapterView.OnItemClickList
 			Bundle data = msg.getData();
 			String modelJson = data.getString("modelList");
 
-			modelList = FastjsonUtil.jsonToList(modelJson,ProjectInformation.class);
+			if (null!=modelJson){
+				modelList = FastjsonUtil.jsonToList(modelJson,ProjectInformation.class);
 
-			mPullRefreshLayout.finishRefresh();
+				ModelAdapter modelAdapter = new ModelAdapter(context,modelList);
+				msListView.setAdapter(modelAdapter);
+
+				mPullRefreshLayout.finishRefresh();
+			}else {
+				// 出错
+				String exception = data.getString("Exception");
+				showToast(exception + "  请重试");
+				mPullRefreshLayout.finishRefresh();
+			}
+
+
 		}
 	}
 
 
 	public void showToast(String message){
-		Toast.makeText(getContext(),message,Toast.LENGTH_LONG).show();
+		Toast.makeText(this,message,Toast.LENGTH_LONG).show();
 	}
 }

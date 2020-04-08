@@ -4,6 +4,10 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
 
+    <string name="title_home_expert">Home</string>
+    <string name="title_dashboard_expert">Dashboard</string>
+    <string name="title_notifications_expert">Notifications</string>
+
 
     <string name="ic_access_alarms">&#xe000;</string>
     <string name="ic_access_time">&#xe001;</string>
@@ -438,4 +442,18 @@
     <string name="ic_whatshot">&#xe1ae;</string>
     <string name="ic_wifi_tethering">&#xe1af;</string>
     <string name="ic_work">&#xe1b0;</string>
+    <string name="title_activity_expert_entry">ExpertEntryActivity</string>
+
+
+    <string name="title_activity_login">Sign in</string>
+    <string name="login">Sign in</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_username">用户名</string>
+    <string name="prompt_password">密码</string>
+    <string name="action_sign_in">登陆/注册</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
 </resources>

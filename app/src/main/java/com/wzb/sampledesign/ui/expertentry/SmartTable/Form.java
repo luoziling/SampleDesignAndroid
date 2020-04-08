@@ -1,4 +1,4 @@
-package com.wzb.sampledesign.ui.SmartTable;
+package com.wzb.sampledesign.ui.expertentry.SmartTable;
 
 import android.graphics.Paint;
 

@@ -1,4 +1,4 @@
-package com.wzb.sampledesign.ui.SmartTable;
+package com.wzb.sampledesign.ui.expertentry.SmartTable;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -8,6 +8,8 @@ import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -27,7 +29,8 @@ import com.wzb.sampledesign.R;
 import com.wzb.sampledesign.pojo.AdjacentClosure;
 import com.wzb.sampledesign.pojo.Conclusion;
 import com.wzb.sampledesign.pojo.MatrixStorage;
-import com.wzb.sampledesign.ui.TreeView.TreeViewActivity;
+import com.wzb.sampledesign.ui.expertentry.TreeView.TreeViewActivity;
+import com.wzb.sampledesign.ui.expertentry.ui.home.HomeFragment;
 import com.wzb.sampledesign.util.Constant;
 
 
@@ -37,6 +40,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -70,10 +74,14 @@ public class FormModeActivity extends AppCompatActivity {
 
     String nodeValue;
 
+    private Handler mHandler;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_table);
+
+        mHandler = new MyHandler(this);
 
         //get DAO DAO(Data Access Object)
 //        DaoSession daoSession = ((App)getApplication()).getDaoSession();
@@ -324,7 +332,7 @@ public class FormModeActivity extends AppCompatActivity {
 //            Long myID = tqb.where(tqb.and(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)
 //                    ,TreeNodeContentDao.Properties.Value.eq(nodeValue)))
 //                    .unique().getId();
-            Log.e("myID",myID.toString());
+//            Log.e("myID",myID.toString());
             //todo:根据该节点查询以该节点为祖先节点的所有记录
             //查询该节点有多少后裔节点
 //            adjacentClosureList = aqb.where(aqb.and(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)
@@ -349,7 +357,7 @@ public class FormModeActivity extends AppCompatActivity {
                 flag = true;
             }
 
-            String value;
+            String value = "";
             if(adjacentClosureList.size()>1){
 
                 //有下一层
@@ -518,9 +526,10 @@ public class FormModeActivity extends AppCompatActivity {
                                                     //在此处添加输入值即可
                                                     myForm[row][col].setName(input);
                                                     myForm[col][row].setName(df.format(reciprocal));
+                                                    // todo:
                                                     //表格存入数据库
-                                                    SaveTable saveTable = new SaveTable(row,col);
-                                                    saveTable.execute();
+//                                                    SaveTable saveTable = new SaveTable(row,col);
+//                                                    saveTable.execute();
 
                                                 }else{
                                                     Toast.makeText(getApplicationContext(), "添加内容不能为非数字内容！" + input, Toast.LENGTH_LONG).show();
@@ -866,5 +875,22 @@ public class FormModeActivity extends AppCompatActivity {
         startActivity(myIntent);
 
 
+    }
+
+    private class MyHandler extends Handler{
+        private Context context;
+
+        public MyHandler(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            Bundle msgBundle;
+            switch (msg.what){
+                case 1:
+                    break;
+            }
+        }
     }
 }

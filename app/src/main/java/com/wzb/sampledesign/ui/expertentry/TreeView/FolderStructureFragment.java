@@ -1,10 +1,10 @@
-package com.wzb.sampledesign.ui.TreeView;
+package com.wzb.sampledesign.ui.expertentry.TreeView;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,13 +21,14 @@ import com.unnamed.b.atv.model.TreeNode;
 import com.unnamed.b.atv.view.AndroidTreeView;
 import com.wzb.sampledesign.R;
 import com.wzb.sampledesign.pojo.AdjacentClosure;
+import com.wzb.sampledesign.ui.expertentry.ui.home.HomeFragment;
 import com.wzb.sampledesign.util.Constant;
 
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -57,6 +58,8 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
     @BindView(R.id.conclusion_RoundButton)
     public QMUIRoundButton conclusionButton;
 
+    private Handler mHandler;
+
 
 
 
@@ -77,6 +80,8 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
         ButterKnife.bind(this,rootView);
 
         statusBar = (TextView) rootView.findViewById(R.id.status_bar);
+
+        mHandler = new MyHandler(getContext());
 
         Log.e("on","folder");
 
@@ -116,9 +121,10 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
 
             //创建root
             myRoot = new TreeNode(new IconTreeItemHolder.IconTreeItem(R.string.ic_laptop,projectName));
+            // 放到了ExpertEntryActivity
             //保存至数据库
-            SaveTask saveTask = new SaveTask(projectName);
-            saveTask.execute();
+//            SaveTask saveTask = new SaveTask(projectName);
+//            saveTask.execute();
 
             root.addChildren(myRoot);
 
@@ -135,14 +141,15 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
 //            List<Integer> nodeIdList = new LinkedList<>();
             //从数据库中取深度为0的节点
             Log.e("from","save");
-            GetZeroNode getZeroNode = new GetZeroNode();
-            getZeroNode.execute();
-            //创建所有节点
-            GetAndCreateTreeNode getAndCreateTreeNode = new GetAndCreateTreeNode();
-            getAndCreateTreeNode.execute();
-            //从数据库中获取深度为1的节点并且组合成树形结构
-            GetOneNodeAndCombinnation getOneNodeAndCombinnation = new GetOneNodeAndCombinnation();
-            getOneNodeAndCombinnation.execute();
+            //todo: 重组矩阵
+//            GetZeroNode getZeroNode = new GetZeroNode();
+//            getZeroNode.execute();
+//            //创建所有节点
+//            GetAndCreateTreeNode getAndCreateTreeNode = new GetAndCreateTreeNode();
+//            getAndCreateTreeNode.execute();
+//            //从数据库中获取深度为1的节点并且组合成树形结构
+//            GetOneNodeAndCombinnation getOneNodeAndCombinnation = new GetOneNodeAndCombinnation();
+//            getOneNodeAndCombinnation.execute();
 
 
 
@@ -238,8 +245,9 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
                 startActivity(myIntent);
                 break;
             case R.id.CalculationResults:
-                ConclusionCalculation conclusionCalculation = new ConclusionCalculation();
-                conclusionCalculation.execute();
+                //todo:
+//                ConclusionCalculation conclusionCalculation = new ConclusionCalculation();
+//                conclusionCalculation.execute();
                 break;
         }
         return true;
@@ -275,8 +283,10 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
             //开启新的表格
             Bundle bundle = new Bundle();
             bundle.putString("itemText",item.text);
-            StartTable startTable = new StartTable(getActivity(),bundle);
-            startTable.execute();
+
+            //todo:
+//            StartTable startTable = new StartTable(getActivity(),bundle);
+//            startTable.execute();
 
             return true;
         }
@@ -815,5 +825,22 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
 //            startActivity(myIntent);
 //        }
 //    }
+
+    private class MyHandler extends Handler{
+        private Context context;
+
+        public MyHandler(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            Bundle msgBundle;
+            switch (msg.what){
+                case 1:
+                    break;
+            }
+        }
+    }
 
 }

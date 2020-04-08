@@ -1,12 +1,14 @@
-package com.wzb.sampledesign.ui.TreeView;
+package com.wzb.sampledesign.ui.expertentry.TreeView;
 
 import android.app.ActionBar;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -25,6 +27,7 @@ import com.wzb.sampledesign.util.Constant;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
@@ -51,14 +54,19 @@ public class ConclusionActivity extends AppCompatActivity implements View.OnClic
 
     private TreeNode myRoot;
 
+    private Handler mHandler;
+
+
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_conclusion);
+        setContentView(R.layout.activity_conclusion_editable);
         ButterKnife.bind(this);
         roundButton.setOnClickListener(this);
+
+        mHandler = new MyHandler(this);
 
 
         //get DAO DAO(Data Access Object)
@@ -68,8 +76,9 @@ public class ConclusionActivity extends AppCompatActivity implements View.OnClic
 
         initList = new ArrayList<>();
 
-        Init init = new Init();
-        init.execute();
+        // todo:
+//        Init init = new Init();
+//        init.execute();
 
 
 
@@ -105,8 +114,8 @@ public class ConclusionActivity extends AppCompatActivity implements View.OnClic
                                     conclusionAdapter.notifyDataSetChanged();
                                     //todo:保存至数据库
 
-                                    SaveConclusion saveConclusion = new SaveConclusion(conclusion);
-                                    saveConclusion.execute();
+//                                    SaveConclusion saveConclusion = new SaveConclusion(conclusion);
+//                                    saveConclusion.execute();
 
                                 }
                             }
@@ -130,9 +139,9 @@ public class ConclusionActivity extends AppCompatActivity implements View.OnClic
 
                         Log.e("delData",conclusion.toString());
 
-                        DeleteConclusion deleteConclusion = new DeleteConclusion(conclusion);
-
-                        deleteConclusion.execute();
+//                        DeleteConclusion deleteConclusion = new DeleteConclusion(conclusion);
+//
+//                        deleteConclusion.execute();
 
                         //在UI中删除
                         conclusionAdapter.delData(position);
@@ -265,6 +274,23 @@ public class ConclusionActivity extends AppCompatActivity implements View.OnClic
         startActivity(myIntent);
 
 
+    }
+
+    private class MyHandler extends Handler{
+        private Context context;
+
+        public MyHandler(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            Bundle msgBundle;
+            switch (msg.what){
+                case 1:
+                    break;
+            }
+        }
     }
 
 

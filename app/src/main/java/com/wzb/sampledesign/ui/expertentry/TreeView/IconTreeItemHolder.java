@@ -1,9 +1,8 @@
-package com.wzb.sampledesign.ui.TreeView;
+package com.wzb.sampledesign.ui.expertentry.TreeView;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.os.AsyncTask;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,8 +17,6 @@ import com.wzb.sampledesign.pojo.AdjacentClosure;
 import com.wzb.sampledesign.util.Constant;
 
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 
@@ -129,9 +126,10 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
 
                                         Integer myID = 0;
 //                                        SaveTask saveTask  = new SaveTask(node,input);
+                                        // todo:
                                         //使用子节点
-                                        SaveTask saveTask  = new SaveTask(childNode,input);
-                                        saveTask.execute();
+//                                        SaveTask saveTask  = new SaveTask(childNode,input);
+//                                        saveTask.execute();
 
                                         //根节点在创建项目时就保存了
 //                                        if (node.isRoot()){
@@ -235,8 +233,9 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
                                 //删除功能，需要从数据库中也一起删除相关信息
                                 //获取节点value
                                 IconTreeItem nowItem = (IconTreeItem) node.getValue();
-                                DeleteTask deleteTask = new DeleteTask(nowItem.text);
-                                deleteTask.execute();
+                                // todo:
+//                                DeleteTask deleteTask = new DeleteTask(nowItem.text);
+//                                deleteTask.execute();
                             }
                         })
                         .setNegativeButton("取消", new DialogInterface.OnClickListener() {
