@@ -36,12 +36,13 @@ public class LoginVerificationThread implements Runnable {
 	@Override
 	public void run() {
 		Log.e("LoginVerficationThread","1");
-		String url = Constant.zuulHead + "/user_service/loginVerification";
+		String url = Constant.zuulHead + "/user/user_service/loginVerification";
 		Message message = new Message();
 		message.what = Constant.LOGGING;
 		Bundle msgBundle = new Bundle();
 
 		Log.e("url",url);
+		Log.e("user",new Gson().toJson(user).toString());
 
 		OkHttpUtils
 				.postString()

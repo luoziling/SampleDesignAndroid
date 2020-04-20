@@ -1,4 +1,4 @@
-package com.wzb.sampledesign.ui.expertentry.asynctask;
+package com.wzb.sampledesign.ui.asynctask.expertTask;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -6,6 +6,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.wzb.sampledesign.pojo.TreeNodeContent;
 import com.wzb.sampledesign.util.Constant;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
@@ -14,52 +15,53 @@ import okhttp3.Call;
 import okhttp3.MediaType;
 
 /**
- * Date: 2019/10/26
+ * Date: 2020/4/11
  * Author:Satsuki
  * Description:
+ * 获取下一层节点信息或结论信息用于矩阵构建和数据录入
  */
-public class CreateModelThread implements Runnable {
-
+public class GetNextOrConThread implements Runnable {
 	private Handler handler;
-	private String projectName;
+	private TreeNodeContent treeNodeContent;
 
-	public CreateModelThread() {
-	}
-
-	public CreateModelThread(Handler handler, String projectName) {
+	public GetNextOrConThread(Handler handler, TreeNodeContent treeNodeContent) {
 		this.handler = handler;
-		this.projectName = projectName;
+		this.treeNodeContent = treeNodeContent;
 	}
 
 	@Override
 	public void run() {
-		String url = Constant.urlHead1 + "/project_information/project_creation";
-
+		Log.e("GetNextOrConThread","1");
+		String url = Constant.zuulDBHead + "/treenode_content/selNCByTN";
 		Message message = new Message();
+		message.what = Constant.DATAENTRY;
 		Bundle msgBundle = new Bundle();
 
-		message.what = Constant.CREATE_MODEL;
+		Log.e("url:",url);
+		Log.e("treeNodeContent:",new Gson().toJson(treeNodeContent));
+
+
+
 
 		OkHttpUtils
 				.postString()
 				.url(url)
-				.content(new Gson().toJson(projectName))
+				.content(new Gson().toJson(treeNodeContent))
 				.mediaType(MediaType.get("application/json; charset=utf-8"))
 				.build().execute(new StringCallback() {
 			@Override
 			public void onError(Call call, Exception e) {
 				Log.e("Error",e.toString());
-				msgBundle.putBoolean("httpResult",false);
-				msgBundle.putString("error","网络出错");
+				msgBundle.putBoolean("result",false);
 				message.setData(msgBundle);
 				handler.sendMessage(message);
 			}
 
 			@Override
 			public void onResponse(String response) {
-				Log.e("response",response);
-				Boolean res = Boolean.parseBoolean(response);
-				msgBundle.putBoolean("httpResult",true);
+				// 处理返回信息
+				msgBundle.putBoolean("result",true);
+				msgBundle.putString("response",response);
 				message.setData(msgBundle);
 				handler.sendMessage(message);
 			}

@@ -21,8 +21,8 @@ import com.qmuiteam.qmui.util.QMUIColorHelper;
 import com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton;
 import com.wzb.sampledesign.R;
 import com.wzb.sampledesign.pojo.MatrixStorage;
-import com.wzb.sampledesign.pojo.RootCriData;
 import com.wzb.sampledesign.pojo.TreeNodeContent;
+import com.wzb.sampledesign.pojo.result.RootCriData;
 import com.wzb.sampledesign.ui.ConclusionActivity;
 import com.wzb.sampledesign.ui.asynctask.CalculateThread;
 import com.wzb.sampledesign.ui.asynctask.GetCriteriaThread;
@@ -481,7 +481,7 @@ public class ModelDetailFragment extends Fragment implements View.OnClickListene
 							Log.e("response",response);
 							// 把json字符串转成pojo
 							Log.e("response",response);
-							List<TreeNodeContent> mList = FastjsonUtil.jsonToList(response,TreeNodeContent.class);
+							List<TreeNodeContent> mList = FastjsonUtil.jsonToList(response, TreeNodeContent.class);
 		//					for (TreeNodeContent tnContent:mList) {
 		//						criteriaList.add(tnContent.getValue());
 		//					}

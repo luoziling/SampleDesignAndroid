@@ -25,22 +25,15 @@ import butterknife.ButterKnife;
 import okhttp3.Call;
 import okhttp3.MediaType;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.qmuiteam.qmui.util.QMUIColorHelper;
 import com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton;
 import com.wzb.sampledesign.R;
-import com.wzb.sampledesign.annotation.Widget;
 import com.wzb.sampledesign.pojo.MatrixStorage;
-import com.wzb.sampledesign.pojo.RootCriData;
 import com.wzb.sampledesign.pojo.TreeNodeContent;
+import com.wzb.sampledesign.pojo.result.RootCriData;
 import com.wzb.sampledesign.ui.ConclusionActivity;
 import com.wzb.sampledesign.ui.asynctask.CalculateThread;
 import com.wzb.sampledesign.ui.asynctask.GetCriteriaThread;
@@ -48,17 +41,11 @@ import com.wzb.sampledesign.ui.asynctask.SaveMSThread;
 import com.wzb.sampledesign.util.Constant;
 import com.wzb.sampledesign.util.FastjsonUtil;
 import com.zhy.http.okhttp.OkHttpUtils;
-import com.zhy.http.okhttp.callback.Callback;
 import com.zhy.http.okhttp.callback.StringCallback;
 
 
-import org.json.JSONArray;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 //@Widget(name = "RoundButton", iconRes = R.mipmap.icon_grid_button)
 public class HomeFragment extends Fragment implements View.OnClickListener {

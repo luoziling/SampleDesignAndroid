@@ -9,7 +9,7 @@ public class DocInfo1 {
 
     private String dochospital;
 
-    private String 科室;
+    private String department;
 
     public Integer getId() {
         return id;
@@ -43,11 +43,22 @@ public class DocInfo1 {
         this.dochospital = dochospital == null ? null : dochospital.trim();
     }
 
-    public String get科室() {
-        return 科室;
+    public String getDepartment() {
+        return department;
     }
 
-    public void set科室(String 科室) {
-        this.科室 = 科室 == null ? null : 科室.trim();
+    public void setDepartment(String department) {
+        this.department = department == null ? null : department.trim();
+    }
+
+    @Override
+    public String toString() {
+        return "DocInfo1{" +
+                "id=" + id +
+                ", docname='" + docname + '\'' +
+                ", docid='" + docid + '\'' +
+                ", dochospital='" + dochospital + '\'' +
+                ", department='" + department + '\'' +
+                '}';
     }
 }

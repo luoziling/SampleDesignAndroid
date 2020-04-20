@@ -10,11 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.wzb.sampledesign.R;
-import com.wzb.sampledesign.pojo.Conclusion;
 import com.wzb.sampledesign.pojo.DocInfo2;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Date: 2019/10/14

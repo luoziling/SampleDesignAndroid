@@ -5,11 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import okhttp3.Call;
-import okhttp3.MediaType;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -20,14 +17,9 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.Volley;
-import com.google.gson.Gson;
 import com.qmuiteam.qmui.util.QMUIColorHelper;
 import com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton;
 import com.wzb.sampledesign.R;
-import com.wzb.sampledesign.pojo.MatrixStorage;
-import com.wzb.sampledesign.pojo.RootCriData;
 import com.wzb.sampledesign.pojo.TreeNodeContent;
 import com.wzb.sampledesign.ui.ConclusionActivity;
 import com.wzb.sampledesign.ui.asynctask.CalculateThread;
@@ -35,8 +27,6 @@ import com.wzb.sampledesign.ui.asynctask.GetCriteriaThread;
 import com.wzb.sampledesign.ui.asynctask.SaveMSThread;
 import com.wzb.sampledesign.util.Constant;
 import com.wzb.sampledesign.util.FastjsonUtil;
-import com.zhy.http.okhttp.OkHttpUtils;
-import com.zhy.http.okhttp.callback.StringCallback;
 
 import java.util.ArrayList;
 import java.util.List;

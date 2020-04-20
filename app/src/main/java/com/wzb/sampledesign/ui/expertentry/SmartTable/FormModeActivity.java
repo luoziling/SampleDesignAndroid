@@ -29,9 +29,15 @@ import com.wzb.sampledesign.R;
 import com.wzb.sampledesign.pojo.AdjacentClosure;
 import com.wzb.sampledesign.pojo.Conclusion;
 import com.wzb.sampledesign.pojo.MatrixStorage;
+import com.wzb.sampledesign.pojo.TreeNodeContent;
+import com.wzb.sampledesign.pojo.result.CommonResult;
+import com.wzb.sampledesign.pojo.result.MatrixResult;
+import com.wzb.sampledesign.ui.asynctask.SaveMSThread;
+import com.wzb.sampledesign.ui.asynctask.expertTask.GetMatrixThread;
+import com.wzb.sampledesign.ui.asynctask.expertTask.SaveMatrixThread;
 import com.wzb.sampledesign.ui.expertentry.TreeView.TreeViewActivity;
-import com.wzb.sampledesign.ui.expertentry.ui.home.HomeFragment;
 import com.wzb.sampledesign.util.Constant;
+import com.wzb.sampledesign.util.FastjsonUtil;
 
 
 import java.text.DecimalFormat;
@@ -76,6 +82,8 @@ public class FormModeActivity extends AppCompatActivity {
 
     private Handler mHandler;
 
+    FormTableData<Form> tableData;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,15 +105,38 @@ public class FormModeActivity extends AppCompatActivity {
         .setTextLeftOffset(dp5);
         llBottom = findViewById(R.id.ll_bottom);
         searchBtn = (Button) findViewById(R.id.tv_query);
+        Bundle bundle = getIntent().getExtras();
+        nodeValue = bundle.get("itemText").toString();
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             //设置点击监听事件 修改表格中的值
             public void onClick(View v) {
-                if(selectForm !=null){
-                    selectForm.setName(editText.getText().toString());
-                    table.invalidate();
-                    editText.setText("");
+//                if(selectForm !=null){
+//                    selectForm.setName(editText.getText().toString());
+//                    table.invalidate();
+//                    editText.setText("");
+//                }
+                // 监听事件保存全表数值
+                // 获取数据
+                Double[][] data = new Double[n][n];
+                for(int i = 1;i<n+1;i++){
+                    for(int j = 1;j<n+1;j++){
+                        if(myForm[i][j].getName()!=""&&myForm[i][j].getName()!=null){
+                            //当获取的不为空
+                            data[i-1][j-1] = Double.valueOf(myForm[i][j].getName());
+                        }else {
+                            //否则赋值为0
+                            data[i-1][j-1]=0.0;
+                        }
+
+                    }
                 }
+                // 开启子线程传输数据与处理
+                SaveMatrixThread saveMatrixThread = new SaveMatrixThread(mHandler,data,nodeValue,tableNode);
+                Thread asyncThread = new Thread(saveMatrixThread);
+                asyncThread.start();
+
+
             }
         });
         editText = (EditText)findViewById(R.id.edit_query) ;
@@ -230,11 +261,15 @@ public class FormModeActivity extends AppCompatActivity {
 //
 //        };
 
-        Bundle bundle = getIntent().getExtras();
+
 //        String nodeValue = bundle.get("itemText").toString();
-        //从数据库中获取数据
-        GetData getData = new GetData(bundle,getApplicationContext());
-        getData.execute();
+
+//        //从数据库中获取数据
+//        GetData getData = new GetData(bundle,getApplicationContext());
+//        getData.execute();
+
+        // 数据初始化
+        init();
         //从数据库中加载数据
         //n:子数组个数要产生一个n+1*n+1的表格
 //        int n = 5;
@@ -310,6 +345,202 @@ public class FormModeActivity extends AppCompatActivity {
 
     }
 
+    private void init(){
+        // 初始化界面
+        // 如果有下一层节点
+        if (Constant.expertNodes!=null&&Constant.expertNodes.size()>0){
+            // 初始化清空数据
+            tableNode = new ArrayList<>();
+            for(TreeNodeContent treeNodeContent: Constant.expertNodes){
+                tableNode.add(treeNodeContent.getValue());
+            }
+        }
+
+        // 如果有结论
+        if (Constant.expertCons!=null&&Constant.expertCons.size()>0){
+            tableNode = new ArrayList<>();
+            for(Conclusion conclusion: Constant.expertCons){
+                tableNode.add(conclusion.getPlan());
+            }
+        }
+
+        // 置空缓存数据
+        Constant.expertCons = null;
+        Constant.expertNodes = null;
+        Constant.expertClos = null;
+
+        //创建表格
+        //从数据库中加载数据
+        //n:子数组个数要产生一个n+1*n+1的表格
+        n = tableNode.size();
+        Log.e("n:",String.valueOf(n));
+        //n+1是为了空出第一个格子
+        myForm = new Form[n+1][n+1];
+        //赋值与初始化
+        //第一行第一列：
+        myForm[0][0] = Form.Empty;
+        //第一行：
+        for(int i = 1;i<myForm[0].length;i++){
+//                    myForm[0][i] = new Form("子节点名", Paint.Align.LEFT);
+            myForm[0][i] = new Form(tableNode.get(i-1), Paint.Align.LEFT);
+        }
+        //第一列：
+        for(int i = 1;i<n+1;i++){
+            myForm[i][0] = new Form(tableNode.get(i-1), Paint.Align.LEFT);
+        }
+        //第二行第二列至最后一行最后一列：
+        for(int i = 1;i<n+1;i++){//行循环第二行至最后一行
+            for(int j = 1;j<n+1;j++){
+//                        Log.e("i",String.valueOf(i));
+//                        Log.e("j",String.valueOf(j));
+                //每一行第二列至最后一列
+                if(i==j){
+                    //中间分割线
+                    myForm[i][j] = new Form("1");
+                }else{
+                    //否则为空
+//                            myForm[i][j] = Form.Empty;
+                    //否则为1，初始化置1消除bug（测试 (测试成功
+                    myForm[i][j] = new Form("1");
+                }
+
+                //或者
+//                myForm[i][j] = new Form("",Paint.Align.LEFT);
+            }
+        }
+
+        // 查询是否数据库已有数据，如果有则恢复数据
+        MatrixStorage matrixStorage = new MatrixStorage();
+        matrixStorage.setProjectId(Constant.PROJECTID);
+        matrixStorage.setValue(nodeValue);
+        GetMatrixThread getMatrixThread = new GetMatrixThread(mHandler,matrixStorage);
+        Thread asyncThread = new Thread(getMatrixThread);
+
+        asyncThread.start();
+
+
+//        //如果在数据库中已经存储过
+//        if(matrixStorageList.size()>0){
+//            //从数据库中加载数据
+////                    int size = matrixStorageList.size();
+//            int size=0;
+//            //第二行第二列至最后一行最后一列：
+//            for(int i = 1;i<n+1;i++) {//行循环第二行至最后一行
+//                for (int j = 1; j < n + 1; j++) {
+//                    myForm[i][j] = new Form(matrixStorageList.get(size).getMatrixValue().toString());
+//                    size++;
+//                    Log.e("myForm[i][j]",myForm[i][j].getName());
+//                }
+//            }
+//        }
+
+//        //创建表格
+//        tableData = FormTableData.create(table, "测试表", 11, myForm);
+//        tableData.setFormat(new IFormat<Form>() {
+//            @Override
+//            public String format(Form form) {
+//                if (form != null) {
+//                    return form.getName();
+//                } else {
+//                    return "";
+//                }
+//            }
+//        });
+//        table.setSelectFormat(new BaseSelectFormat());
+//        tableData.setOnItemClickListener(new TableData.OnItemClickListener<Form>() {
+//            @Override
+//            public void onClick(Column column, String value, Form form, int col, int row) {
+////                        Log.e("column",String.valueOf(column));
+////                        Log.e("value",String.valueOf(value));
+////                        Log.e("form",form.toString());
+////                        Log.e("col",String.valueOf(col));
+////                        Log.e("row",String.valueOf(row));
+//                //这边能不能使用alertDialog做
+//                if(form !=null){
+//                    final EditText et = new EditText(getApplicationContext());
+//                    et.setTextColor(getResources().getColor(R.color.my_dark));
+//                    new AlertDialog.Builder(FormModeActivity.this)
+//                            .setTitle("请输入表格内容")
+//                            .setView(et)
+//                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+//                                @Override
+//                                public void onClick(DialogInterface dialog, int which) {
+//                                    String input = et.getText().toString();
+//                                    if (input.equals("")) {
+//                                        Toast.makeText(getApplicationContext(), "添加内容不能为空！" + input, Toast.LENGTH_LONG).show();
+//                                    }
+//                                    else {
+//                                        //如果是数字
+////                                                if(isNumericZidai(input)){
+//                                        if(CheckNumbers(input)){
+//                                            //表格添加输入的数据
+////                                                    form.setName(input);//应该是这里出错了直接将整个form都改成了1
+//                                            Log.e("input:",input);
+//
+//                                            //获取Double数据
+//                                            //保留三位小数
+////                                                    DecimalFormat df = new DecimalFormat("0.000");
+//                                            //保留二位小数
+//                                            DecimalFormat df = new DecimalFormat("0.00");
+//                                            Double data = Double.valueOf(input);
+//                                            Double reciprocal = 1/data;
+//                                            Log.e("reciprocal:",String.valueOf(reciprocal));
+//                                            //如何把talbe[j][i]也添加数据
+//                                            //把倒数添加进[j][i]
+//                                            //行
+//                                            Log.e("row",String.valueOf(row));
+//                                            //列
+//                                            Log.e("col",String.valueOf(col));
+////                                                    myForm[col][row].setName(String.valueOf(reciprocal));
+//                                            //在此处添加输入值即可
+//                                            myForm[row][col].setName(input);
+//                                            myForm[col][row].setName(df.format(reciprocal));
+//                                            // 放到按钮监听，点击存储。
+////                                            //表格存入数据库
+////                                            SaveTable saveTable = new SaveTable(row,col);
+////                                            saveTable.execute();
+//
+//                                        }else{
+//                                            Toast.makeText(getApplicationContext(), "添加内容不能为非数字内容！" + input, Toast.LENGTH_LONG).show();
+//                                        }
+//
+//                                    }
+//
+//                                }
+//                            })
+//                            .setNegativeButton("取消",null)
+//                            .show();
+//
+//                }
+//
+//            }
+//
+//        });
+//        table.getConfig().setTableGridFormat(new BaseGridFormat(){
+//            @Override
+//            protected boolean isShowHorizontalLine(int col, int row, CellInfo cellInfo) {
+//                if(row == tableData.getLineSize() -1){
+//                    return false;
+//                }
+//                return true;
+//            }
+//
+//            @Override
+//            protected boolean isShowVerticalLine(int col, int row, CellInfo cellInfo) {
+//                if(row == tableData.getLineSize() -1){
+//                    return false;
+//                }
+//                return true;
+//            }
+//        });
+//        //固定表格行列
+//        table.getConfig().setFixedFirstColumn(true);
+//        table.getConfig().setFixedCountRow(true);
+//        table.setTableData(tableData);
+
+
+    }
+
     public class GetData extends AsyncTask<Void, Integer, Boolean> {
         //在这边要做加载的初始化
         private Bundle bundle;
@@ -329,13 +560,13 @@ public class FormModeActivity extends AppCompatActivity {
 
             nodeValue = bundle.get("itemText").toString();
             //todo:根据内容获取ID
-//            Long myID = tqb.where(tqb.and(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)
+//            Long myID = tqb.where(tqb.and(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)
 //                    ,TreeNodeContentDao.Properties.Value.eq(nodeValue)))
 //                    .unique().getId();
 //            Log.e("myID",myID.toString());
             //todo:根据该节点查询以该节点为祖先节点的所有记录
             //查询该节点有多少后裔节点
-//            adjacentClosureList = aqb.where(aqb.and(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)
+//            adjacentClosureList = aqb.where(aqb.and(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)
 //                    ,AdjacentClosureDao.Properties.Ancestor.eq(myID)))
 //                    .list();
             Log.e("adjaList",adjacentClosureList.toString());
@@ -348,7 +579,7 @@ public class FormModeActivity extends AppCompatActivity {
             }
 
             //查询该项目有没有结论
-//            conclusionList = cqb.where(ConclusionDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)).list();
+//            conclusionList = cqb.where(ConclusionDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)).list();
             //上述内容要放在之前的activity中
 
             //如果有上述两个中的一个则创建表格
@@ -371,11 +602,11 @@ public class FormModeActivity extends AppCompatActivity {
                     Log.e("adjacentClosure",adjacentClosure.toString());
                     //所有下一层的节点
                     //todo:根据后裔ID找到对应的节点内容
-//                    Log.e("tqb",tqb.where(tqb.and(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECT_NAME),
+//                    Log.e("tqb",tqb.where(tqb.and(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT),
 //                            TreeNodeContentDao.Properties.Id.eq(adjacentClosure.getDescendant().longValue())))
 //                            .unique().toString());
 //
-//                    value = tqb.where(tqb.and(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECT_NAME),
+//                    value = tqb.where(tqb.and(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT),
 //                            TreeNodeContentDao.Properties.Id.eq(adjacentClosure.getDescendant().longValue())))
 //                            .unique().getValue();
                     Log.e("value",value);
@@ -398,7 +629,7 @@ public class FormModeActivity extends AppCompatActivity {
                 //todo:如果可以创建表格
                 //查询当前表格是否已经保存过
 //                QueryBuilder<MatrixStorage> mqb = matrixStorageDao.queryBuilder();
-//                matrixStorageList = mqb.where(mqb.and(MatrixStorageDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)
+//                matrixStorageList = mqb.where(mqb.and(MatrixStorageDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)
 //                        ,MatrixStorageDao.Properties.Value.eq(nodeValue)))
 //                        .list();
 
@@ -770,12 +1001,12 @@ public class FormModeActivity extends AppCompatActivity {
                     matrixStorage.setI(i);
                     matrixStorage.setJ(j);
                     matrixStorage.setValue(nodeValue);
-                    matrixStorage.setProjectName(Constant.PROJECT_NAME);
+                    matrixStorage.setProjectName(Constant.PROJECTNAMEEXPERT);
                     matrixStorage.setMatrixValue(data[i][j]);
 //                    matrixStorageDao.insert(matrixStorage);
                     //要使用insertOrReplace
                     //todo:根据其他的所有属性查询有没有相同的ID
-//                    savedM = mqb.where(mqb.and(MatrixStorageDao.Properties.ProjectName.eq(Constant.PROJECT_NAME),
+//                    savedM = mqb.where(mqb.and(MatrixStorageDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT),
 //                            MatrixStorageDao.Properties.I.eq(i),
 //                            MatrixStorageDao.Properties.J.eq(j),
 //                            MatrixStorageDao.Properties.Value.eq(nodeValue))).unique();
@@ -802,9 +1033,9 @@ public class FormModeActivity extends AppCompatActivity {
 //                normalizationWeight.setValue(nodeValue);
 //                normalizationWeight.setNextVlue(tableNode.get(i));
 //                normalizationWeight.setWeight(W[i]);
-//                normalizationWeight.setProjectName(Constant.PROJECT_NAME);
+//                normalizationWeight.setProjectName(Constant.PROJECTNAMEEXPERT);
 //                //在数据库中查询有没有相同ID（是否已保存过
-//                savedN = nqb.where(nqb.and(NormalizationWeightDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)
+//                savedN = nqb.where(nqb.and(NormalizationWeightDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)
 //                        ,NormalizationWeightDao.Properties.Value.eq(nodeValue)
 //                        ,NormalizationWeightDao.Properties.NextVlue.eq(tableNode.get(i))))
 //                        .unique();
@@ -867,7 +1098,7 @@ public class FormModeActivity extends AppCompatActivity {
         Log.e("on","onBackPressed");
 
         Bundle b = new Bundle();
-        b.putString("ProjectName", Constant.PROJECT_NAME);
+        b.putString("ProjectName", Constant.PROJECTNAMEEXPERT);
         b.putString("Origin","Save");
         //启动TreeViewActivity
         Intent myIntent = new Intent(this, TreeViewActivity.class);
@@ -875,6 +1106,9 @@ public class FormModeActivity extends AppCompatActivity {
         startActivity(myIntent);
 
 
+    }
+    public void showToast(String message){
+        Toast.makeText(this,message,Toast.LENGTH_LONG).show();
     }
 
     private class MyHandler extends Handler{
@@ -888,7 +1122,174 @@ public class FormModeActivity extends AppCompatActivity {
         public void handleMessage(@NonNull Message msg) {
             Bundle msgBundle;
             switch (msg.what){
-                case 1:
+                case Constant.GETMATRIX:
+                    // 处理逻辑
+                    msgBundle = msg.getData();
+
+                    // 看看http请求是否成功
+                    if (!msgBundle.getBoolean("result")){
+                        showToast("网络出错请重试");
+                    }else {
+                        // http请求成功
+                        // 回复的json转为对象
+                        MatrixResult result = FastjsonUtil.from(msgBundle.getString("response"),MatrixResult.class);
+                        Log.e("result",result.toString());
+                        // 显示验证信息
+                        showToast(result.getReviews());
+                        // 判断验证是否成功
+                        if (result.isFlag()){
+                            // 填装已有信息
+                            //如果在数据库中已经存储过
+                            if (result.getMatrixStorages()!=null){
+                                matrixStorageList = result.getMatrixStorages();
+                                if(matrixStorageList.size()>0){
+                                    //从数据库中加载数据
+//                    int size = matrixStorageList.size();
+                                    int size=0;
+                                    //第二行第二列至最后一行最后一列：
+                                    for(int i = 1;i<n+1;i++) {//行循环第二行至最后一行
+                                        for (int j = 1; j < n + 1; j++) {
+                                            myForm[i][j] = new Form(matrixStorageList.get(size).getMatrixValue().toString());
+                                            size++;
+                                            Log.e("myForm[i][j]",myForm[i][j].getName());
+                                        }
+                                    }
+//                                    // 更新表格
+//                                    tableData.setform
+                                }
+                            }
+
+
+
+                        }else {
+                            // 重试
+                        }
+                        //创建表格
+                        tableData = FormTableData.create(table, "测试表", 11, myForm);
+                        tableData.setFormat(new IFormat<Form>() {
+                            @Override
+                            public String format(Form form) {
+                                if (form != null) {
+                                    return form.getName();
+                                } else {
+                                    return "";
+                                }
+                            }
+                        });
+                        table.setSelectFormat(new BaseSelectFormat());
+                        tableData.setOnItemClickListener(new TableData.OnItemClickListener<Form>() {
+                            @Override
+                            public void onClick(Column column, String value, Form form, int col, int row) {
+//                        Log.e("column",String.valueOf(column));
+//                        Log.e("value",String.valueOf(value));
+//                        Log.e("form",form.toString());
+//                        Log.e("col",String.valueOf(col));
+//                        Log.e("row",String.valueOf(row));
+                                //这边能不能使用alertDialog做
+                                if(form !=null){
+                                    final EditText et = new EditText(getApplicationContext());
+                                    et.setTextColor(getResources().getColor(R.color.my_dark));
+                                    new AlertDialog.Builder(FormModeActivity.this)
+                                            .setTitle("请输入表格内容")
+                                            .setView(et)
+                                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    String input = et.getText().toString();
+                                                    if (input.equals("")) {
+                                                        Toast.makeText(getApplicationContext(), "添加内容不能为空！" + input, Toast.LENGTH_LONG).show();
+                                                    }
+                                                    else {
+                                                        //如果是数字
+//                                                if(isNumericZidai(input)){
+                                                        if(CheckNumbers(input)){
+                                                            //表格添加输入的数据
+//                                                    form.setName(input);//应该是这里出错了直接将整个form都改成了1
+                                                            Log.e("input:",input);
+
+                                                            //获取Double数据
+                                                            //保留三位小数
+//                                                    DecimalFormat df = new DecimalFormat("0.000");
+                                                            //保留二位小数
+                                                            DecimalFormat df = new DecimalFormat("0.00");
+                                                            Double data = Double.valueOf(input);
+                                                            Double reciprocal = 1/data;
+                                                            Log.e("reciprocal:",String.valueOf(reciprocal));
+                                                            //如何把talbe[j][i]也添加数据
+                                                            //把倒数添加进[j][i]
+                                                            //行
+                                                            Log.e("row",String.valueOf(row));
+                                                            //列
+                                                            Log.e("col",String.valueOf(col));
+//                                                    myForm[col][row].setName(String.valueOf(reciprocal));
+                                                            //在此处添加输入值即可
+                                                            myForm[row][col].setName(input);
+                                                            myForm[col][row].setName(df.format(reciprocal));
+                                                            // 放到按钮监听，点击存储。
+//                                            //表格存入数据库
+//                                            SaveTable saveTable = new SaveTable(row,col);
+//                                            saveTable.execute();
+
+                                                        }else{
+                                                            Toast.makeText(getApplicationContext(), "添加内容不能为非数字内容！" + input, Toast.LENGTH_LONG).show();
+                                                        }
+
+                                                    }
+
+                                                }
+                                            })
+                                            .setNegativeButton("取消",null)
+                                            .show();
+
+                                }
+
+                            }
+
+                        });
+                        table.getConfig().setTableGridFormat(new BaseGridFormat(){
+                            @Override
+                            protected boolean isShowHorizontalLine(int col, int row, CellInfo cellInfo) {
+                                if(row == tableData.getLineSize() -1){
+                                    return false;
+                                }
+                                return true;
+                            }
+
+                            @Override
+                            protected boolean isShowVerticalLine(int col, int row, CellInfo cellInfo) {
+                                if(row == tableData.getLineSize() -1){
+                                    return false;
+                                }
+                                return true;
+                            }
+                        });
+                        //固定表格行列
+                        table.getConfig().setFixedFirstColumn(true);
+                        table.getConfig().setFixedCountRow(true);
+                        table.setTableData(tableData);
+                    }
+                    break;
+                case Constant.SAVEMATRIX:
+                    // 处理逻辑
+                    msgBundle = msg.getData();
+
+                    // 看看http请求是否成功
+                    if (!msgBundle.getBoolean("result")){
+                        showToast("网络出错请重试");
+                    }else {
+                        // http请求成功
+                        // 回复的json转为对象
+                        CommonResult result = FastjsonUtil.from(msgBundle.getString("response"),CommonResult.class);
+                        Log.e("result",result.toString());
+                        // 显示验证信息
+                        showToast(result.getReviews());
+                        // 判断验证是否成功
+                        if (result.isFlag()){
+                            // 保存成功
+                        }else {
+                            // 重试
+                        }
+                    }
                     break;
             }
         }

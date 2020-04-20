@@ -26,7 +26,7 @@
         <activity
             android:name=".ui.expertentry.ExpertEntryActivity"
             android:label="@string/title_activity_expert_entry"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".ui.ModuleSelection" />
         <activity
             android:name=".ui.expertentry.TreeView.TreeViewActivity"
             android:launchMode="singleTop"

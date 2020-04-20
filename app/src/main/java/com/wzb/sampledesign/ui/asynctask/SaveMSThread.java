@@ -7,7 +7,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.wzb.sampledesign.pojo.MatrixStorage;
-import com.wzb.sampledesign.pojo.RootCriData;
+import com.wzb.sampledesign.pojo.result.RootCriData;
 import com.wzb.sampledesign.util.Constant;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;

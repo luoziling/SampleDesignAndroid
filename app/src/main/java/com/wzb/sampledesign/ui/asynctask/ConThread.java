@@ -5,14 +5,10 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.wzb.sampledesign.pojo.Conclusion;
-import com.wzb.sampledesign.pojo.DocInfo2;
 import com.wzb.sampledesign.util.Constant;
-import com.wzb.sampledesign.util.FastjsonUtil;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import okhttp3.Call;

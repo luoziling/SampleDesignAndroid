@@ -5,13 +5,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.wzb.sampledesign.pojo.TreeNodeContent;
 import com.wzb.sampledesign.util.Constant;
-import com.wzb.sampledesign.util.FastjsonUtil;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
-
-import java.util.List;
 
 import okhttp3.Call;
 

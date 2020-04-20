@@ -8,6 +8,11 @@
     <string name="title_dashboard_expert">Dashboard</string>
     <string name="title_notifications_expert">Notifications</string>
 
+<!--    专家模块的三个底部导航栏    -->
+    <string name="one">创建项目</string>
+    <string name="two">save</string>
+    <string name="three">其他</string>
+
 
     <string name="ic_access_alarms">&#xe000;</string>
     <string name="ic_access_time">&#xe001;</string>

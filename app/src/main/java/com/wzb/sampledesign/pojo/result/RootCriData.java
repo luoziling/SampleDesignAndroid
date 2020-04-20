@@ -1,4 +1,4 @@
-package com.wzb.sampledesign.pojo;
+package com.wzb.sampledesign.pojo.result;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -21,7 +21,13 @@ import com.unnamed.b.atv.model.TreeNode;
 import com.wzb.sampledesign.R;
 import com.wzb.sampledesign.adapter.ConclusionAdapter;
 import com.wzb.sampledesign.pojo.Conclusion;
+import com.wzb.sampledesign.pojo.result.CommonResult;
+import com.wzb.sampledesign.pojo.result.ConclusionResult;
+import com.wzb.sampledesign.ui.asynctask.expertTask.DeleteConclusionThread;
+import com.wzb.sampledesign.ui.asynctask.expertTask.GetConclusionsThread;
+import com.wzb.sampledesign.ui.asynctask.expertTask.SaveConclusionThread;
 import com.wzb.sampledesign.util.Constant;
+import com.wzb.sampledesign.util.FastjsonUtil;
 
 
 import java.util.ArrayList;
@@ -56,6 +62,10 @@ public class ConclusionActivity extends AppCompatActivity implements View.OnClic
 
     private Handler mHandler;
 
+    private Conclusion conclusion;
+
+    private int mPosition;
+
 
 
 
@@ -79,6 +89,9 @@ public class ConclusionActivity extends AppCompatActivity implements View.OnClic
         // todo:
 //        Init init = new Init();
 //        init.execute();
+        GetConclusionsThread getConclusionsThread = new GetConclusionsThread(mHandler);
+        Thread asyncThread = new Thread(getConclusionsThread);
+        asyncThread.start();
 
 
 
@@ -104,14 +117,22 @@ public class ConclusionActivity extends AppCompatActivity implements View.OnClic
                                     Toast.makeText(getApplicationContext(), "添加内容不能为空！",
                                             Toast.LENGTH_SHORT).show();
                                 }else {
-                                    Conclusion conclusion = new Conclusion();
+                                    conclusion = new Conclusion();
                                     conclusion.setPlan(input);
-                                    conclusion.setProjectName(Constant.PROJECT_NAME);
+                                    conclusion.setProjectName(Constant.PROJECTNAMEEXPERT);
+                                    conclusion.setProjectId(Constant.PROJECTID);
+                                    conclusion.setUserId(Constant.loginUser.getId());
 
-                                    Log.e("addData",conclusion.toString());
 
-                                    conclusionAdapter.addData(conclusion);
-                                    conclusionAdapter.notifyDataSetChanged();
+
+                                    // 启动线程
+                                    SaveConclusionThread saveConclusionThread = new SaveConclusionThread(mHandler,conclusion);
+                                    Thread asyncThread = new Thread(saveConclusionThread);
+                                    asyncThread.start();
+
+                                    // 放到handler中
+//                                    conclusionAdapter.addData(conclusion);
+//                                    conclusionAdapter.notifyDataSetChanged();
                                     //todo:保存至数据库
 
 //                                    SaveConclusion saveConclusion = new SaveConclusion(conclusion);
@@ -137,15 +158,23 @@ public class ConclusionActivity extends AppCompatActivity implements View.OnClic
                         //todo:从数据库中删除记录
                         Conclusion conclusion = (Conclusion) conclusionAdapter.getItem(position);
 
+                        conclusion.setUserId(Constant.loginUser.getId());
+                        conclusion.setProjectId(Constant.PROJECTID);
+                        mPosition = position;
+
                         Log.e("delData",conclusion.toString());
+                        // 启动线程
+                        DeleteConclusionThread deleteConclusionThread = new DeleteConclusionThread(mHandler,conclusion);
+                        Thread asyncThread = new Thread(deleteConclusionThread);
+                        asyncThread.start();
 
 //                        DeleteConclusion deleteConclusion = new DeleteConclusion(conclusion);
 //
 //                        deleteConclusion.execute();
 
                         //在UI中删除
-                        conclusionAdapter.delData(position);
-                        conclusionAdapter.notifyDataSetChanged();
+//                        conclusionAdapter.delData(position);
+//                        conclusionAdapter.notifyDataSetChanged();
 
 
                     }
@@ -158,7 +187,7 @@ public class ConclusionActivity extends AppCompatActivity implements View.OnClic
     // todo:放到后台
 //    List<Conclusion> search(){
 //        QueryBuilder<Conclusion> cqb = conclusionDao.queryBuilder();
-//        initList = cqb.where(ConclusionDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)).list();
+//        initList = cqb.where(ConclusionDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)).list();
 //        Log.e("initList",initList.toString());
 //        return initList;
 //    }
@@ -167,7 +196,7 @@ public class ConclusionActivity extends AppCompatActivity implements View.OnClic
 //    void search1(){
 //        QueryBuilder<Conclusion> cqb = conclusionDao.queryBuilder();
 //        Log.e("initList",cqb
-//                .where(ConclusionDao.Properties.ProjectName.eq(Constant.PROJECT_NAME))
+//                .where(ConclusionDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT))
 //                .list().toString());
 //    }
 
@@ -204,7 +233,7 @@ public class ConclusionActivity extends AppCompatActivity implements View.OnClic
 //        @Override
 //        protected Boolean doInBackground(Void... voids) {
 //
-//            conclusion.setProjectName(Constant.PROJECT_NAME);
+//            conclusion.setProjectName(Constant.PROJECTNAMEEXPERT);
 //            conclusionDao.insert(conclusion);
 //            search1();
 //
@@ -226,7 +255,7 @@ public class ConclusionActivity extends AppCompatActivity implements View.OnClic
 //
 //            dcqb = cqb.where(
 //                    cqb.and(ConclusionDao.Properties.Plan.eq(conclusion.getPlan())
-//                            ,ConclusionDao.Properties.ProjectName.eq(Constant.PROJECT_NAME))
+//                            ,ConclusionDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT))
 //            ).buildDelete();
 //
 //            dcqb.executeDeleteWithoutDetachingEntities();
@@ -266,7 +295,7 @@ public class ConclusionActivity extends AppCompatActivity implements View.OnClic
         Log.e("on","onBackPressed");
 
         Bundle b = new Bundle();
-        b.putString("ProjectName",Constant.PROJECT_NAME);
+        b.putString("ProjectName",Constant.PROJECTNAMEEXPERT);
         b.putString("Origin","Save");
         //启动TreeViewActivity
         Intent myIntent = new Intent(this, TreeViewActivity.class);
@@ -274,6 +303,9 @@ public class ConclusionActivity extends AppCompatActivity implements View.OnClic
         startActivity(myIntent);
 
 
+    }
+    public void showToast(String message){
+        Toast.makeText(this,message,Toast.LENGTH_LONG).show();
     }
 
     private class MyHandler extends Handler{
@@ -287,7 +319,85 @@ public class ConclusionActivity extends AppCompatActivity implements View.OnClic
         public void handleMessage(@NonNull Message msg) {
             Bundle msgBundle;
             switch (msg.what){
-                case 1:
+                case Constant.GETCONCLUSIONS:
+                    // 处理逻辑
+                    msgBundle = msg.getData();
+
+                    // 看看http请求是否成功
+                    if (!msgBundle.getBoolean("result")){
+                        showToast("网络出错请重试");
+                    }else {
+                        // http请求成功
+                        // 回复的json转为对象
+                        ConclusionResult result = FastjsonUtil.from(msgBundle.getString("response"),ConclusionResult.class);
+                        Log.e("result",result.toString());
+                        // 显示验证信息
+                        showToast(result.getReviews());
+                        // 判断验证是否成功
+                        if (result.isFlag()){
+                            // UI更新
+                            conclusionAdapter = new ConclusionAdapter(getApplicationContext(),result.getConclusions());
+                            conclusionAdapter.notifyDataSetChanged();
+
+                            listView.setAdapter(conclusionAdapter);
+
+                        }else {
+//                            保存失败要重试
+                        }
+                    }
+                    break;
+                case Constant.SAVECONCLUSIONS:
+                    // 处理逻辑
+                    msgBundle = msg.getData();
+
+                    // 看看http请求是否成功
+                    if (!msgBundle.getBoolean("result")){
+                        showToast("网络出错请重试");
+                    }else {
+                        // http请求成功
+                        // 回复的json转为对象
+                        CommonResult result = FastjsonUtil.from(msgBundle.getString("response"),CommonResult.class);
+                        Log.e("result",result.toString());
+                        // 显示验证信息
+                        showToast(result.getReviews());
+                        // 判断验证是否成功
+                        if (result.isFlag()){
+                            Log.e("addData",conclusion.toString());
+                            // UI更新
+                            conclusionAdapter.addData(conclusion);
+                            conclusionAdapter.notifyDataSetChanged();
+
+                        }else {
+//                            保存失败要重试
+                        }
+                    }
+                    break;
+                case Constant.DELETECONCLUSIONS:
+                    // 处理逻辑
+                    msgBundle = msg.getData();
+
+                    // 看看http请求是否成功
+                    if (!msgBundle.getBoolean("result")){
+                        showToast("网络出错请重试");
+                    }else {
+                        // http请求成功
+                        // 回复的json转为对象
+                        CommonResult result = FastjsonUtil.from(msgBundle.getString("response"),CommonResult.class);
+                        Log.e("result",result.toString());
+                        // 显示验证信息
+                        showToast(result.getReviews());
+                        // 判断验证是否成功
+                        if (result.isFlag()){
+                            Log.e("DELETE",conclusion.toString());
+                            // UI更新
+                            //在UI中删除
+                            conclusionAdapter.delData(mPosition);
+                            conclusionAdapter.notifyDataSetChanged();
+
+                        }else {
+//                            保存失败要重试
+                        }
+                    }
                     break;
             }
         }

@@ -4,8 +4,6 @@ import com.wzb.sampledesign.pojo.Conclusion;
 
 import java.util.Comparator;
 
-import androidx.annotation.Nullable;
-
 /**
  * Date: 2019/10/17
  * Author:Satsuki

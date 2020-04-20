@@ -9,6 +9,10 @@ public class Conclusion {
 
     private Float priority;
 
+    private Integer projectId;
+
+    private Integer userId;
+
     public Integer getId() {
         return id;
     }
@@ -41,6 +45,22 @@ public class Conclusion {
         this.priority = priority;
     }
 
+    public Integer getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Integer projectId) {
+        this.projectId = projectId;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
     @Override
     public String toString() {
         return "Conclusion{" +
@@ -48,6 +68,8 @@ public class Conclusion {
                 ", projectName='" + projectName + '\'' +
                 ", plan='" + plan + '\'' +
                 ", priority=" + priority +
+                ", projectId=" + projectId +
+                ", userId=" + userId +
                 '}';
     }
 }

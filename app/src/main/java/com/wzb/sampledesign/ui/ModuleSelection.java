@@ -1,16 +1,50 @@
 package com.wzb.sampledesign.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
 import com.wzb.sampledesign.R;
+import com.wzb.sampledesign.ui.expertentry.ExpertEntryActivity;
 
-public class ModuleSelection extends AppCompatActivity {
+public class ModuleSelection extends AppCompatActivity implements View.OnClickListener {
+	@BindView(R.id.expertButton)
+	Button expertButton;
+	@BindView(R.id.generalButton)
+	Button generalButton;
+	@BindView(R.id.groupButton)
+	Button groupButton;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_module_selection);
+		ButterKnife.bind(this);
+
+		expertButton.setOnClickListener(this);
+		generalButton.setOnClickListener(this);
+		groupButton.setOnClickListener(this);
+
+
+	}
+
+	@Override
+	public void onClick(View view) {
+		switch (view.getId()){
+			case R.id.expertButton:
+				// 点击专家模块按钮进入相应模块
+				Intent intent = new Intent(this,ExpertEntryActivity.class);
+				startActivity(intent);
+				break;
+			case R.id.generalButton:
+				break;
+			case R.id.groupButton:
+				break;
+		}
 	}
 }

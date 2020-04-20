@@ -3,6 +3,10 @@ package com.wzb.sampledesign.ui.expertentry.TreeView;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,10 +18,18 @@ import com.github.johnkil.print.PrintView;
 import com.unnamed.b.atv.model.TreeNode;
 import com.wzb.sampledesign.R;
 import com.wzb.sampledesign.pojo.AdjacentClosure;
+import com.wzb.sampledesign.pojo.jsonwrapper.DeleteNodeWrapper;
+import com.wzb.sampledesign.pojo.result.CommonResult;
+import com.wzb.sampledesign.pojo.result.CreateResult;
+import com.wzb.sampledesign.ui.asynctask.expertTask.DeleteTreeNodeThread;
+import com.wzb.sampledesign.ui.asynctask.expertTask.SaveTreeNodeThread;
 import com.wzb.sampledesign.util.Constant;
+import com.wzb.sampledesign.util.FastjsonUtil;
 
 
 import java.util.List;
+
+import androidx.annotation.NonNull;
 
 
 /**
@@ -45,6 +57,12 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
     private List<TreeNode> treeNodeList;
     private List<AdjacentClosure> depthOneList;
 
+    private TreeItemHanlder treeItemHanlder;
+
+    private TreeNode myTNode;
+    String input;
+
+
     public IconTreeItemHolder(Context context) {
 
         super(context);
@@ -61,6 +79,8 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
 //        textView.setTypeface(typeFace);
 
         final View view = inflater.inflate(R.layout.layout_icon_node, null, false);
+
+        treeItemHanlder = new TreeItemHanlder();
         tvValue = (TextView) view.findViewById(R.id.node_value);
         tvValue.setText(value.text);
 
@@ -78,7 +98,7 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
         //获取项目名也就是根节点的value
 //        String projectName = node.getRoot().getValue().toString();
 //        String projectName = node.getChildren().get(0).getValue().toString();
-        String projectName = Constant.PROJECT_NAME;
+        String projectName = Constant.PROJECTNAMEEXPERT;
         Log.e("IconName:",projectName);
 
 
@@ -98,17 +118,21 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
                         .setView(et)
                         .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                String input = et.getText().toString();
+                                input = et.getText().toString();
                                 if (input.equals("")) {
                                     Toast.makeText(myContext, "添加内容不能为空！" + input, Toast.LENGTH_LONG).show();
                                 }
                                 else {
+                                    myTNode = node;
                                     //这边treeNode创建新的之后要通过treeView来添加才在UI上显示
                                     //todo:从保存读取的时候也需要在treeView上添加
-                                    TreeNode newFolder = new TreeNode(new IconTreeItem(R.string.ic_folder, input));
-                                    //在这边已经将子节点添加了(并没有
-//                                    Log.e("getChildren0",String.valueOf(node.getChildren().toArray()));
-                                    getTreeView().addNode(node, newFolder);
+                                    // 放到返回handler处创建
+//                                    TreeNode newFolder = new TreeNode(new IconTreeItem(R.string.ic_folder, input));
+//                                    //在这边已经将子节点添加了(并没有
+////                                    Log.e("getChildren0",String.valueOf(node.getChildren().toArray()));
+//                                    getTreeView().addNode(node, newFolder);
+
+
 //                                    Log.e("getChildren1",String.valueOf(node.getChildren().indexOf(0)));
 //                                    Log.e("getChildren2",String.valueOf(node.getChildren().indexOf(1)));
                                     //自行添加新节点（也不行）不对 思考错了
@@ -118,9 +142,19 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
                                     //todo:保存至数据库(思如泉涌）要注意与数据库交互是否属于耗时操作
                                     try {
                                         //获取子节点
-                                        TreeNode childNode = node.getChildren().get(0);
+                                        // 同一层的节点所以拥有共同的祖先节点
+										// 这样在下一层新创建节点的时候无法获得，之前是先跟新UI所以可行
+//                                        TreeNode childNode = node.getChildren().get(0);
+                                        // 修改，注意祖先节点获取过程
+										TreeNode childNode = node;
+
                                         IconTreeItem treeItem = (IconTreeItem)childNode.getValue();
                                         Log.e("childNodeVlue",treeItem.text);
+
+                                        // 开启子线程创建节点
+                                        SaveTreeNodeThread saveTreeNodeThread = new SaveTreeNodeThread(treeItemHanlder,childNode,input);
+                                        Thread asyncThread = new Thread(saveTreeNodeThread);
+                                        asyncThread.start();
 
                                         //当前节点ID（后裔ID
 
@@ -229,10 +263,21 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
                         .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                getTreeView().removeNode(node);
+
+                                myTNode = node;
+
+                                // UI删除
+//                                getTreeView().removeNode(node);
                                 //删除功能，需要从数据库中也一起删除相关信息
                                 //获取节点value
                                 IconTreeItem nowItem = (IconTreeItem) node.getValue();
+                                DeleteNodeWrapper wrapper = new DeleteNodeWrapper();
+
+                                wrapper.setProjectID(Constant.PROJECTID);
+                                wrapper.setNodeValue(nowItem.text);
+                                DeleteTreeNodeThread deleteTreeNodeThread = new DeleteTreeNodeThread(treeItemHanlder,wrapper);
+                                Thread asyncThread = new Thread(deleteTreeNodeThread);
+                                asyncThread.start();
                                 // todo:
 //                                DeleteTask deleteTask = new DeleteTask(nowItem.text);
 //                                deleteTask.execute();
@@ -326,7 +371,7 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
 ////            String nodeValue = node.getValue().toString();
 //            TreeNodeContent treeNodeContent = new TreeNodeContent();
 //            treeNodeContent.setValue(inputValue);
-//            treeNodeContent.setProjectName(Constant.PROJECT_NAME);
+//            treeNodeContent.setProjectName(Constant.PROJECTNAMEEXPERT);
 //            Log.e("newtreeNodeContent",treeNodeContent.toString());
 //            treeNodeContentDao.insert(treeNodeContent);
 //            AdjacentClosure adjacentClosure = new AdjacentClosure();
@@ -339,17 +384,17 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
 //            adjacentClosure.setDescendant(myID);
 //            adjacentClosure.setDepth(0);
 //            //todo:别忘记了projectName 同时 新添是insert不是save
-//            adjacentClosure.setProjectName(Constant.PROJECT_NAME);
+//            adjacentClosure.setProjectName(Constant.PROJECTNAMEEXPERT);
 //            //保存
 //            adjacentClosureDao.insert(adjacentClosure);
 //            //查看数据库中的值
 //            Log.e("treeNodeContent0:",treeNodeContentDao
 //                    .queryBuilder()
-//                    .where(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECT_NAME))
+//                    .where(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT))
 //                    .list().toString());
 //            Log.e("AdjacentClosure0",adjacentClosureDao
 //                    .queryBuilder()
-//                    .where(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECT_NAME))
+//                    .where(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT))
 //                    .list().toString());
 //
 //            //根节点与空思考一下
@@ -388,7 +433,7 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
 //                myAdjacentClosure.setDepth(mydepth);
 //                //项目名
 //                //todo:在从数据库加载时也需要设置项目名
-//                myAdjacentClosure.setProjectName(Constant.PROJECT_NAME);
+//                myAdjacentClosure.setProjectName(Constant.PROJECTNAMEEXPERT);
 //                adjacentClosureDao.insert(myAdjacentClosure);
 //
 ////                                            myNode
@@ -406,11 +451,11 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
 //            //查看数据库中的值
 //            Log.e("treeNodeContent1:",treeNodeContentDao
 //                    .queryBuilder()
-//                    .where(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECT_NAME))
+//                    .where(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT))
 //                    .list().toString());
 //            Log.e("AdjacentClosure1",adjacentClosureDao
 //                    .queryBuilder()
-//                    .where(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECT_NAME))
+//                    .where(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT))
 //                    .list().toString());
 //
 //            return null;
@@ -430,9 +475,9 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
 //            Integer myID = 0;
 //            QueryBuilder<TreeNodeContent> queryBuilder = treeNodeContentDao.queryBuilder();
 //            queryBuilder.where(queryBuilder.and(TreeNodeContentDao.Properties.Value.eq(nodeValue),
-//                    TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)));
+//                    TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)));
 ////            queryBuilder.and(TreeNodeContentDao.Properties.Value.eq(nodeValue),
-////                    TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECT_NAME));
+////                    TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT));
 //            Log.e("查询结果",queryBuilder.list().toString());
 //            TreeNodeContent content = queryBuilder.unique();
 //            myID = content.getId().intValue();
@@ -440,9 +485,9 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
 //
 //            //获取所有以当前node为祖先的记录
 //            QueryBuilder<AdjacentClosure> adjacentClosureQueryBuilder = adjacentClosureDao.queryBuilder();
-//            adjacentClosureQueryBuilder.where(adjacentClosureQueryBuilder.and(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECT_NAME),
+//            adjacentClosureQueryBuilder.where(adjacentClosureQueryBuilder.and(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT),
 //                    AdjacentClosureDao.Properties.Ancestor.eq(myID)));
-////            adjacentClosureQueryBuilder.and(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECT_NAME),
+////            adjacentClosureQueryBuilder.and(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT),
 ////                    AdjacentClosureDao.Properties.Ancestor.eq(myID));
 //            adjacentClosureList = new ArrayList<>();
 //            adjacentClosureList = adjacentClosureQueryBuilder.list();
@@ -459,12 +504,12 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
 //            Log.e("beforeDelete:",
 //                    adjacentClosureDao
 //                            .queryBuilder()
-//                            .where(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECT_NAME))
+//                            .where(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT))
 //                            .list().toString());
 //
 //            Log.e("beforeTreeNodeContent:",treeNodeContentDao
 //                    .queryBuilder()
-//                    .where(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECT_NAME))
+//                    .where(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT))
 //                    .list().toString());
 //
 //            //删除邻接闭包表所有相关记录
@@ -485,7 +530,7 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
 //                DeleteQuery<AdjacentClosure> dq;
 //                DeleteQuery<TreeNodeContent> tdq;
 //
-//                dq=qb.where(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECT_NAME),
+//                dq=qb.where(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT),
 //                        qb.or(AdjacentClosureDao.Properties.Ancestor.eq(deleteInt),
 //                                AdjacentClosureDao.Properties.Descendant.eq(deleteInt))).buildDelete();
 //
@@ -493,7 +538,7 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
 //
 //
 //
-////                qb.and(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECT_NAME),
+////                qb.and(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT),
 ////                             qb.or(AdjacentClosureDao.Properties.Ancestor.eq(deleteInt),
 ////                                AdjacentClosureDao.Properties.Descendant.eq(deleteInt)));
 //
@@ -504,11 +549,11 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
 //
 //                Log.e("执行一次循环：",adjacentClosureDao
 //                        .queryBuilder()
-//                        .where(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECT_NAME))
+//                        .where(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT))
 //                        .list().toString());
 //                Log.e("1：",treeNodeContentDao
 //                        .queryBuilder()
-//                        .where(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECT_NAME))
+//                        .where(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT))
 //                        .list().toString());
 //
 ////                adjacentClosureDao.detachAll();
@@ -521,7 +566,7 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
 //            Log.e("afterDelete:",
 //                    adjacentClosureDao
 //                            .queryBuilder()
-//                            .where(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECT_NAME))
+//                            .where(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT))
 //                            .list().toString());
 //
 //
@@ -546,7 +591,7 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
 //            adjacentClosureList = qb
 //                    //深度为0且项目名为当前项目名
 ////                    .where(AdjacentClosureDao.Properties.Depth.eq(0))
-//                    .where(qb.and(AdjacentClosureDao.Properties.Depth.eq(0),AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)))
+//                    .where(qb.and(AdjacentClosureDao.Properties.Depth.eq(0),AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)))
 //                    //升序排序
 //                    .orderAsc(AdjacentClosureDao.Properties.Ancestor)
 //                    //取List
@@ -585,7 +630,7 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
 //            QueryBuilder<AdjacentClosure> qb1 = adjacentClosureDao.queryBuilder();
 //            depthOneList = qb1
 //                    //深度为1项目名为当前项目名
-//                    .where(qb1.and(AdjacentClosureDao.Properties.Depth.eq(1),AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)))
+//                    .where(qb1.and(AdjacentClosureDao.Properties.Depth.eq(1),AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)))
 //                    //根据祖先按照升序排序
 //                    .orderAsc(AdjacentClosureDao.Properties.Ancestor)
 //                    //获取list
@@ -626,6 +671,74 @@ public class IconTreeItemHolder extends TreeNode.BaseNodeViewHolder<IconTreeItem
 //            return null;
 //        }
 //    }
+
+    public void showToast(String message){
+        Toast.makeText(myContext,message,Toast.LENGTH_LONG).show();
+    }
+
+    private class TreeItemHanlder extends Handler{
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            Bundle msgBundle;
+            switch (msg.what){
+                case Constant.SAVETREENODE:
+                    // 处理逻辑
+                    msgBundle = msg.getData();
+
+                    // 看看http请求是否成功
+                    if (!msgBundle.getBoolean("result")){
+                        showToast("网络出错请重试");
+                    }else {
+                        // http请求成功
+                        // 回复的json转为对象
+                        CommonResult result = FastjsonUtil.from(msgBundle.getString("response"),CommonResult.class);
+                        Log.e("result",result.toString());
+                        // 显示验证信息
+                        showToast(result.getReviews());
+                        // 判断验证是否成功
+                        if (result.isFlag()){
+                            // 存储项目ID信息
+                            // 创建节点
+                            TreeNode newFolder = new TreeNode(new IconTreeItem(R.string.ic_folder, input));
+                            getTreeView().addNode(myTNode, newFolder);
+//                            Constant.PROJECTID = result.getProjectID();
+////                            Constant.PROJECTNAMEEXPERT = projectName;
+////                            Intent intent = new Intent(getContext(), TreeViewActivity.class);
+////
+////                            intent.putExtra("ProjectName","myProject");
+////                            startActivity(intent);
+                        }else {
+//                            保存失败要重试
+                        }
+                    }
+                    break;
+                case Constant.DELETETREENODE:
+                    // 处理逻辑
+                    msgBundle = msg.getData();
+
+                    // 看看http请求是否成功
+                    if (!msgBundle.getBoolean("result")){
+                        showToast("网络出错请重试");
+                    }else {
+                        // http请求成功
+                        // 回复的json转为对象
+                        CommonResult result = FastjsonUtil.from(msgBundle.getString("response"),CommonResult.class);
+                        Log.e("result",result.toString());
+                        // 显示验证信息
+                        showToast(result.getReviews());
+                        // 判断验证是否成功
+                        if (result.isFlag()){
+                            // UI删除
+                            getTreeView().removeNode(myTNode);
+
+                        }else {
+//                            保存失败要重试
+                        }
+                    }
+                    break;
+            }
+        }
+    }
 
 
 }

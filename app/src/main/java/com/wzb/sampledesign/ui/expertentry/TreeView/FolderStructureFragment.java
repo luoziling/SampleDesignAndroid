@@ -1,5 +1,6 @@
 package com.wzb.sampledesign.ui.expertentry.TreeView;
 
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,14 +22,25 @@ import com.unnamed.b.atv.model.TreeNode;
 import com.unnamed.b.atv.view.AndroidTreeView;
 import com.wzb.sampledesign.R;
 import com.wzb.sampledesign.pojo.AdjacentClosure;
-import com.wzb.sampledesign.ui.expertentry.ui.home.HomeFragment;
+import com.wzb.sampledesign.pojo.TreeNodeContent;
+import com.wzb.sampledesign.pojo.result.CommonResult;
+import com.wzb.sampledesign.pojo.result.ModelInfoResult;
+import com.wzb.sampledesign.pojo.result.NextOrConResult;
+import com.wzb.sampledesign.ui.asynctask.expertTask.ConCalThread;
+import com.wzb.sampledesign.ui.asynctask.expertTask.GetMatrixThread;
+import com.wzb.sampledesign.ui.asynctask.expertTask.GetModelInfoThread;
+import com.wzb.sampledesign.ui.asynctask.expertTask.GetNextOrConThread;
+import com.wzb.sampledesign.ui.expertentry.SmartTable.FormModeActivity;
 import com.wzb.sampledesign.util.Constant;
+import com.wzb.sampledesign.util.FastjsonUtil;
 
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -59,6 +71,10 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
     public QMUIRoundButton conclusionButton;
 
     private Handler mHandler;
+    private Context context;
+
+    // 传递点击的节点信息
+    private Bundle bundle;
 
 
 
@@ -81,7 +97,10 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
 
         statusBar = (TextView) rootView.findViewById(R.id.status_bar);
 
-        mHandler = new MyHandler(getContext());
+
+        context = getActivity();
+//        context = getActivity().getApplication().getApplicationContext();
+        mHandler = new MyHandler(context);
 
         Log.e("on","folder");
 
@@ -99,12 +118,13 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
         //获取项目名
 //        Bundle b = getIntent().getExtras();
         Bundle b = getArguments();
-        String projectName = b.getString("ProjectName");
+//        String projectName = b.getString("ProjectName");
+        String projectName = Constant.PROJECTNAMEEXPERT;
 //        String projectName = getArguments().getBundle();
         Log.e("projectName:",projectName);
 
         //将projectName设置为常数方便后续调用
-        Constant.PROJECT_NAME = projectName;
+//        Constant.PROJECTNAMEEXPERT = projectName;
 
         String origin = b.getString("Origin");
 //        Log.e("origin:",origin);//NULL EXCEPTION
@@ -134,11 +154,16 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
             Constant.IS_Save = true;
 
             //创建root
-            myRoot = new TreeNode(new IconTreeItemHolder.IconTreeItem(R.string.ic_laptop,projectName));
+            myRoot = new TreeNode(new IconTreeItemHolder.IconTreeItem(R.string.ic_laptop,Constant.PROJECTNAMEEXPERT));
             root.addChildren(myRoot);
 
-            //从保存过来的需要加载
-//            List<Integer> nodeIdList = new LinkedList<>();
+            GetModelInfoThread getModelInfoThread = new GetModelInfoThread(mHandler);
+            Thread asyncThread = new Thread(getModelInfoThread);
+            asyncThread.start();
+
+
+
+
             //从数据库中取深度为0的节点
             Log.e("from","save");
             //todo: 重组矩阵
@@ -150,6 +175,7 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
 //            //从数据库中获取深度为1的节点并且组合成树形结构
 //            GetOneNodeAndCombinnation getOneNodeAndCombinnation = new GetOneNodeAndCombinnation();
 //            getOneNodeAndCombinnation.execute();
+
 
 
 
@@ -245,7 +271,11 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
                 startActivity(myIntent);
                 break;
             case R.id.CalculationResults:
-                //todo:
+                //todo:结论计算
+                ConCalThread conCalThread = new ConCalThread(mHandler);
+                Thread asyncThread = new Thread(conCalThread);
+                asyncThread.start();
+
 //                ConclusionCalculation conclusionCalculation = new ConclusionCalculation();
 //                conclusionCalculation.execute();
                 break;
@@ -281,12 +311,21 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
             Toast.makeText(getActivity(), "Long click: " + item.text, Toast.LENGTH_SHORT).show();
             //长按监听点击事件：
             //开启新的表格
-            Bundle bundle = new Bundle();
+            bundle = new Bundle();
             bundle.putString("itemText",item.text);
 
-            //todo:
+            TreeNodeContent treeNodeContent = new TreeNodeContent();
+            treeNodeContent.setProjectId(Constant.PROJECTID);
+            treeNodeContent.setValue(item.text);
+            // 发起请求获取数据，跳转判断矩阵界面
+            GetNextOrConThread getNextOrConThread = new GetNextOrConThread(mHandler,treeNodeContent);
+            Thread asyncThread = new Thread(getNextOrConThread);
+            asyncThread.start();
+
+
 //            StartTable startTable = new StartTable(getActivity(),bundle);
 //            startTable.execute();
+
 
             return true;
         }
@@ -312,6 +351,7 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
     }
 
     //todo:放到后台
+    // 在进入这个界面之前就做了项目保存
 //    public class SaveTask extends AsyncTask<Void, Integer, Boolean> {
 //        private String projectName;
 //
@@ -402,7 +442,7 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
 //            adjacentClosureList = qb
 //                    //深度为0且项目名为当前项目名
 ////                    .where(AdjacentClosureDao.Properties.Depth.eq(0))
-//                    .where(qb.and(AdjacentClosureDao.Properties.Depth.eq(0),AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)))
+//                    .where(qb.and(AdjacentClosureDao.Properties.Depth.eq(0),AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)))
 //                    //升序排序
 //                    .orderAsc(AdjacentClosureDao.Properties.Ancestor)
 //                    //取List
@@ -450,7 +490,7 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
 //                IconTreeItemHolder.IconTreeItem item = (IconTreeItemHolder.IconTreeItem)treeNodeList.get(i).getValue();
 ////                Log.e("itemText",item.text);
 ////                Log.e("itemIcon",String.valueOf(item.icon));//Icon是hash数值没用
-//                if(item.text.equals(Constant.PROJECT_NAME)){
+//                if(item.text.equals(Constant.PROJECTNAMEEXPERT)){
 //                    //替换
 //
 //                    treeNodeList.set(i,myRoot);
@@ -478,7 +518,7 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
 //            QueryBuilder<AdjacentClosure> qb = adjacentClosureDao.queryBuilder();
 //            depthOneList = qb
 //                    //深度为1项目名为当前项目名
-//                    .where(qb.and(AdjacentClosureDao.Properties.Depth.eq(1),AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)))
+//                    .where(qb.and(AdjacentClosureDao.Properties.Depth.eq(1),AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)))
 //                    //根据祖先按照升序排序
 //                    .orderAsc(AdjacentClosureDao.Properties.Ancestor)
 //                    //获取list
@@ -584,13 +624,13 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
 //            QueryBuilder<TreeNodeContent> tqb = treeNodeContentDao.queryBuilder();
 //            String nodeValue = bundle.get("itemText").toString();
 //            //根据内容获取ID
-//            Long myID = tqb.where(tqb.and(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)
+//            Long myID = tqb.where(tqb.and(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)
 //                    ,TreeNodeContentDao.Properties.Value.eq(nodeValue)))
 //                    .unique().getId();
 //            Log.e("myID",myID.toString());
 //            //根据该节点查询以该节点为祖先节点的所有记录
 //            //查询该节点有多少后裔节点
-//            List<AdjacentClosure> adjacentClosureList = aqb.where(aqb.and(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)
+//            List<AdjacentClosure> adjacentClosureList = aqb.where(aqb.and(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)
 //                    ,AdjacentClosureDao.Properties.Ancestor.eq(myID)))
 //                    .list();
 //            //找到深度为1的后裔节点
@@ -602,7 +642,7 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
 //            }
 //            Log.e("adjaList",adjacentClosureList.toString());
 //            //查询该项目有没有结论
-//            List<Conclusion> conclusionList = cqb.where(ConclusionDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)).list();
+//            List<Conclusion> conclusionList = cqb.where(ConclusionDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)).list();
 //            Log.e("conclusionList",conclusionList.toString());
 //            //如果该项目有结论或者该节点的后裔节点除了他自身外有其他的后裔节点即可开启新的表格activity
 //            if(depthOneAdj.size()>0 || conclusionList.size()>0){
@@ -634,8 +674,8 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
 //            //获取项目名代表的节点ID（根节点ID
 //            TreeNodeContent rootTreeNode = new TreeNodeContent();
 //            QueryBuilder<TreeNodeContent> tqb = treeNodeContentDao.queryBuilder();
-//            rootTreeNode = tqb.where(tqb.and(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)
-//                    ,TreeNodeContentDao.Properties.Value.eq(Constant.PROJECT_NAME)))
+//            rootTreeNode = tqb.where(tqb.and(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)
+//                    ,TreeNodeContentDao.Properties.Value.eq(Constant.PROJECTNAMEEXPERT)))
 //                    .unique();
 //            Log.e("rootTreeNode",rootTreeNode.toString());
 //            Long rootID = rootTreeNode.getId();
@@ -644,7 +684,7 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
 //            //以根节点为祖先的所有节点
 //            List<AdjacentClosure> rootAnscstor = new ArrayList<>();
 //            QueryBuilder<AdjacentClosure> aqb = adjacentClosureDao.queryBuilder();
-//            rootAnscstor = aqb.where(aqb.and(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)
+//            rootAnscstor = aqb.where(aqb.and(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)
 //                    ,AdjacentClosureDao.Properties.Ancestor.eq(rootID)))
 //                    .list();
 //
@@ -673,7 +713,7 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
 //            List<Double> wcList = new ArrayList<>();
 //
 //            QueryBuilder<Conclusion> cqb = conclusionDao.queryBuilder();
-//            conList = cqb.where(ConclusionDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)).list();
+//            conList = cqb.where(ConclusionDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)).list();
 //
 //            if(conList == null){
 //                Log.e("请先添加结论！","1");
@@ -689,7 +729,7 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
 //                nodeID = Long.valueOf(nowA.getDescendant());
 //                //根据ID获取值
 //                QueryBuilder<TreeNodeContent> tqb1 = treeNodeContentDao.queryBuilder();
-//                TreeNodeContent myTreeNode = tqb1.where(tqb1.and(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)
+//                TreeNodeContent myTreeNode = tqb1.where(tqb1.and(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)
 //                        ,TreeNodeContentDao.Properties.Id.eq(nodeID)))
 //                        .unique();
 //                Log.e("myTreeNode",myTreeNode.toString());
@@ -697,7 +737,7 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
 //                //从归一权重中取值
 //                QueryBuilder<NormalizationWeight> nqb = normalizationWeightDao.queryBuilder();
 //                NormalizationWeight normalizationWeight = new NormalizationWeight();
-//                normalizationWeight = nqb.where(nqb.and(NormalizationWeightDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)
+//                normalizationWeight = nqb.where(nqb.and(NormalizationWeightDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)
 //                        ,NormalizationWeightDao.Properties.NextVlue.eq(nowValue)))
 //                        .unique();
 //                //给当前节点赋值初始值为以当前节点为nextValue的归一权重表中的数据
@@ -713,7 +753,7 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
 //                    Log.e("nowValue",nowValue);
 //                    Log.e("conList.get(j)",conList.get(j).toString());
 //                    NormalizationWeight myNor = new NormalizationWeight();
-//                    myNor = nqb.where(nqb.and(NormalizationWeightDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)
+//                    myNor = nqb.where(nqb.and(NormalizationWeightDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)
 //                            ,NormalizationWeightDao.Properties.Value.eq(nowValue)
 //                            ,NormalizationWeightDao.Properties.NextVlue.eq(conList.get(j).getPlan())))
 //                            .unique();
@@ -725,7 +765,7 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
 //                //从数据库中查询当前节点有没有父节点
 //                //父节点就是在邻接矩阵中后裔ID为当前节点ID且深度为1的节点
 //                QueryBuilder<AdjacentClosure> aqb1 = adjacentClosureDao.queryBuilder();
-//                AdjacentClosure fatherAdj = aqb1.where(aqb1.and(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)
+//                AdjacentClosure fatherAdj = aqb1.where(aqb1.and(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)
 //                        ,AdjacentClosureDao.Properties.Descendant.eq(nodeID)
 //                        ,AdjacentClosureDao.Properties.Depth.eq(1)))
 //                        .unique();
@@ -737,17 +777,17 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
 //                    //获取父节点权重
 //                    //父节点ID
 //                    Long fNodeID = Long.valueOf(fatherAdj.getAncestor());
-//                    TreeNodeContent ftnc = tqb.where(tqb.and(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)
+//                    TreeNodeContent ftnc = tqb.where(tqb.and(TreeNodeContentDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)
 //                            ,TreeNodeContentDao.Properties.Id.eq(fNodeID)))
 //                            .unique();
 //                    String fValue = ftnc.getValue();
-//                    NormalizationWeight fnw = nqb.where(nqb.and(NormalizationWeightDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)
+//                    NormalizationWeight fnw = nqb.where(nqb.and(NormalizationWeightDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)
 //                            ,NormalizationWeightDao.Properties.NextVlue.eq(fValue)))
 //                            .unique();
 //                    //当前节点权重乘以父节点权重
 //                    lastWeight.set(i,lastWeight.get(i)*fnw.getWeight());
 //                    //再往上找父节点直到找到根节点为止
-//                    fatherAdj = aqb1.where(aqb1.and(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECT_NAME)
+//                    fatherAdj = aqb1.where(aqb1.and(AdjacentClosureDao.Properties.ProjectName.eq(Constant.PROJECTNAMEEXPERT)
 //                            ,AdjacentClosureDao.Properties.Descendant.eq(fNodeID)
 //                            ,AdjacentClosureDao.Properties.Depth.eq(1)))
 //                            .unique();
@@ -826,6 +866,10 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
 //        }
 //    }
 
+    public void showToast(String message){
+        Toast.makeText(context,message,Toast.LENGTH_LONG).show();
+    }
+
     private class MyHandler extends Handler{
         private Context context;
 
@@ -837,7 +881,117 @@ public class FolderStructureFragment extends Fragment implements View.OnClickLis
         public void handleMessage(@NonNull Message msg) {
             Bundle msgBundle;
             switch (msg.what){
-                case 1:
+                case Constant.GETMODELINFO:
+                    // 处理逻辑
+                    msgBundle = msg.getData();
+
+                    // 看看http请求是否成功
+                    if (!msgBundle.getBoolean("result")){
+                        showToast("网络出错请重试");
+                    }else {
+                        // http请求成功
+                        // 回复的json转为对象
+                        ModelInfoResult result = FastjsonUtil.from(msgBundle.getString("response"),ModelInfoResult.class);
+                        Log.e("result",result.toString());
+                        // 显示验证信息
+                        showToast(result.getReviews());
+                        // 判断验证是否成功
+                        if (result.isFlag()){
+                            // UI显示
+                            // 创建节点并存储
+                            List<TreeNodeContent> nodeContents = result.getNodeContents();
+                            // 使用map存储 保存id与节点的映射
+                            Map<Integer,TreeNode> nodeMap = new HashMap<>();
+                            for (int i = 0; i < nodeContents.size(); i++) {
+                                // 依次根据ID与value创建节点
+                                nodeMap.put(nodeContents.get(i).getId(),new TreeNode (
+                                        new IconTreeItemHolder.
+                                                IconTreeItem(R.string.ic_folder,nodeContents.get(i).getValue())));
+
+                            }
+                            Log.e("nodeMap",nodeMap.toString());
+
+                            // 替换为根节点
+                            nodeMap.put(nodeContents.get(0).getId(),myRoot);
+                            // 根据层次关系构建模型
+                            List<AdjacentClosure> adjacentClosures = result.getAdjacentClosures();
+                            AdjacentClosure adjacentClosure;
+                            for (int i = 0; i < adjacentClosures.size(); i++) {
+                                adjacentClosure = adjacentClosures.get(i);
+                                // 获取父节点，添加子节点，层次相差正好是1
+                                nodeMap.get(adjacentClosure.getAncestor()).addChild(nodeMap.get(adjacentClosure.getDescendant()));
+                            }
+
+                            // 设置根节点
+                            // 由于根节点总是较先插入，所以根据头一个节点ID获取根节点
+//                            myRoot =nodeMap.get(nodeContents.get(0).getId());
+//                            Log.e("myRoot",myRoot.get)
+                            root.addChildren(myRoot);
+                            Log.e("rootSize",String.valueOf(root.size()));
+                        }
+                    }
+                    break;
+
+                case Constant.DATAENTRY:
+                    // 处理逻辑
+                    msgBundle = msg.getData();
+
+                    // 看看http请求是否成功
+                    if (!msgBundle.getBoolean("result")){
+                        showToast("网络出错请重试");
+                    }else {
+                        // http请求成功
+                        // 回复的json转为对象
+                        NextOrConResult result = FastjsonUtil.from(msgBundle.getString("response"),NextOrConResult.class);
+                        Log.e("result",result.toString());
+                        // 显示验证信息
+                        showToast(result.getReviews());
+                        // 判断验证是否成功
+                        if (result.isFlag()){
+                            // 存储信息
+                            if (result.getAdjacentClosures()!=null){
+                                Constant.expertClos = result.getAdjacentClosures();
+                                Constant.expertNodes = result.getTreeNodeContents();
+                            }
+                            if (result.getConclusions()!=null){
+                                Constant.expertCons = result.getConclusions();
+                            }
+
+                            // 开启矩阵表格
+                            Intent tableIntent = new Intent(getActivity(), FormModeActivity.class);
+                            tableIntent.putExtras(bundle);
+                            startActivity(tableIntent);
+
+                        }else {
+                            // 没有下一层节点/方案
+                        }
+                    }
+                    break;
+
+                case Constant.CONCAL:
+                    // 处理逻辑
+                    msgBundle = msg.getData();
+
+                    // 看看http请求是否成功
+                    if (!msgBundle.getBoolean("result")){
+                        showToast("网络出错请重试");
+                    }else {
+                        // http请求成功
+                        // 回复的json转为对象
+                        CommonResult result = FastjsonUtil.from(msgBundle.getString("response"),CommonResult.class);
+                        Log.e("result",result.toString());
+                        // 显示验证信息
+                        showToast(result.getReviews());
+                        // 判断验证是否成功
+                        if (result.isFlag()){
+                            // 开启结论表格
+                            Intent intent = new Intent(getActivity(), ConclusionActivity.class);
+                            startActivity(intent);
+
+                        }else {
+                            // 计算出错/重试
+                        }
+                    }
                     break;
             }
         }

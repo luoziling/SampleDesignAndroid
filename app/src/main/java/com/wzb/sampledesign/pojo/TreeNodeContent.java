@@ -7,6 +7,8 @@ public class TreeNodeContent {
 
     private String projectName;
 
+    private Integer projectId;
+
     public Integer getId() {
         return id;
     }
@@ -31,12 +33,21 @@ public class TreeNodeContent {
         this.projectName = projectName == null ? null : projectName.trim();
     }
 
+    public Integer getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Integer projectId) {
+        this.projectId = projectId;
+    }
+
     @Override
     public String toString() {
         return "TreeNodeContent{" +
                 "id=" + id +
                 ", value='" + value + '\'' +
                 ", projectName='" + projectName + '\'' +
+                ", projectId=" + projectId +
                 '}';
     }
 }

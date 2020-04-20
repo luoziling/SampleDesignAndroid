@@ -1,4 +1,4 @@
-package com.wzb.sampledesign.pojo;
+package com.wzb.sampledesign.pojo.result;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,41 +7,39 @@ import lombok.experimental.Accessors;
 
 /**
  * @author Satsuki
- * @time 2020/4/8 18:36
- * @description: 整合用户登陆信息
+ * @time 2020/4/10 16:11
+ * @description:
  */
-//@AllArgsConstructor
-//@NoArgsConstructor
-//@Data
-//@Accessors(chain = true)
-public class UserResult {
-    Boolean flag;
-    EcUser user;
+
+
+public class CreateResult {
+    boolean flag;
+    Integer projectID;
     String reviews;
 
-    public UserResult() {
+    public CreateResult() {
     }
 
-    public UserResult(Boolean flag, EcUser user, String reviews) {
+    public CreateResult(boolean flag, Integer projectID, String reviews) {
         this.flag = flag;
-        this.user = user;
+        this.projectID = projectID;
         this.reviews = reviews;
     }
 
-    public Boolean getFlag() {
+    public boolean isFlag() {
         return flag;
     }
 
-    public void setFlag(Boolean flag) {
+    public void setFlag(boolean flag) {
         this.flag = flag;
     }
 
-    public EcUser getUser() {
-        return user;
+    public Integer getProjectID() {
+        return projectID;
     }
 
-    public void setUser(EcUser user) {
-        this.user = user;
+    public void setProjectID(Integer projectID) {
+        this.projectID = projectID;
     }
 
     public String getReviews() {
@@ -54,9 +52,9 @@ public class UserResult {
 
     @Override
     public String toString() {
-        return "UserResult{" +
+        return "CreateResult{" +
                 "flag=" + flag +
-                ", user=" + user +
+                ", projectID=" + projectID +
                 ", reviews='" + reviews + '\'' +
                 '}';
     }

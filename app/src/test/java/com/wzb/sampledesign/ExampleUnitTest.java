@@ -1,8 +1,5 @@
 package com.wzb.sampledesign;
 
-import com.alibaba.fastjson.JSON;
-import com.wzb.sampledesign.pojo.MatrixStorage;
-import com.wzb.sampledesign.ui.home.HomeFragment;
 import com.wzb.sampledesign.util.Constant;
 import com.wzb.sampledesign.util.FastjsonUtil;
 

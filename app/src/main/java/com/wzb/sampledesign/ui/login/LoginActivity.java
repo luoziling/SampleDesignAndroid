@@ -29,11 +29,9 @@ import android.widget.Toast;
 
 import com.wzb.sampledesign.R;
 import com.wzb.sampledesign.pojo.EcUser;
-import com.wzb.sampledesign.pojo.UserResult;
+import com.wzb.sampledesign.pojo.result.UserResult;
 import com.wzb.sampledesign.ui.ModuleSelection;
 import com.wzb.sampledesign.ui.asynctask.usertask.LoginVerificationThread;
-import com.wzb.sampledesign.ui.login.LoginViewModel;
-import com.wzb.sampledesign.ui.login.LoginViewModelFactory;
 import com.wzb.sampledesign.util.Constant;
 import com.wzb.sampledesign.util.FastjsonUtil;
 
@@ -146,6 +144,10 @@ public class LoginActivity extends AppCompatActivity {
 				asyncThread = new Thread(loginVerificationThread);
 				asyncThread.start();
 
+//				// 测试用直接进入界面查看
+//				Intent intent = new Intent(getApplicationContext(),ModuleSelection.class);
+//				startActivity(intent);
+
 			}
 		});
 	}
@@ -184,6 +186,8 @@ public class LoginActivity extends AppCompatActivity {
 						// 回复的json转为对象
 						UserResult userResult = FastjsonUtil.from(msgBundle.getString("response"),UserResult.class);
 						Log.e("userResult",userResult.toString());
+						// 保存用户登陆信息
+						Constant.loginUser = userResult.getUser();
 						// 显示验证信息
 						showToast(userResult.getReviews());
 						// 判断验证是否成功

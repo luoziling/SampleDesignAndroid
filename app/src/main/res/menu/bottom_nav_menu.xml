@@ -16,19 +16,6 @@
         android:icon="@drawable/ic_notifications_black_24dp"
         android:title="@string/title_notifications" />
 
-    <item
-        android:id="@+id/navigation_home_expert"
-        android:icon="@drawable/ic_home_black_24dp"
-        android:title="@string/title_home_expert" />
 
-    <item
-        android:id="@+id/navigation_dashboard_expert"
-        android:icon="@drawable/ic_dashboard_black_24dp"
-        android:title="@string/title_dashboard_expert" />
-
-    <item
-        android:id="@+id/navigation_notifications_expert"
-        android:icon="@drawable/ic_notifications_black_24dp"
-        android:title="@string/title_notifications_expert" />
 
 </menu>

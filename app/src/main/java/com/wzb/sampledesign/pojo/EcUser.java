@@ -7,6 +7,8 @@ public class EcUser {
 
     private String password;
 
+    private Double weight;
+
     public Integer getId() {
         return id;
     }
@@ -29,5 +31,23 @@ public class EcUser {
 
     public void setPassword(String password) {
         this.password = password == null ? null : password.trim();
+    }
+
+    public Double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
+    }
+
+    @Override
+    public String toString() {
+        return "EcUser{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", weight=" + weight +
+                '}';
     }
 }

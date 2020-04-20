@@ -4,14 +4,57 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_centerHorizontal="true"
     tools:context=".ui.ModuleSelection">
 
-    <TextView
-        android:id="@+id/textView"
+    <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
+        android:id="@+id/expertButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="模块选择"
-        android:textSize="30dp"
-        tools:layout_editor_absoluteX="140dp"
-        tools:layout_editor_absoluteY="125dp" />
+        android:layout_centerInParent="true"
+        android:layout_marginTop="160dp"
+        android:clickable="true"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="AHP专家模块"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.086"
+        app:qmui_radius="4dp" />
+
+    <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
+        android:id="@+id/generalButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="160dp"
+        android:clickable="true"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="通泛应用样例模块"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.37"
+        app:qmui_radius="4dp" />
+
+    <com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton
+        android:id="@+id/groupButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="160dp"
+        android:clickable="true"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="群决策模块"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.703"
+        app:qmui_radius="4dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

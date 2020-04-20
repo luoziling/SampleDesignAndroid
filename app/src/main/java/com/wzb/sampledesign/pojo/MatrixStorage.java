@@ -13,7 +13,9 @@ public class MatrixStorage {
 
     private String projectName;
 
-    private String username;
+    private Integer userId;
+
+    private Integer projectId;
 
     public Integer getId() {
         return id;
@@ -63,12 +65,20 @@ public class MatrixStorage {
         this.projectName = projectName == null ? null : projectName.trim();
     }
 
-    public String getUsername() {
-        return username;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void setUsername(String username) {
-        this.username = username == null ? null : username.trim();
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public Integer getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Integer projectId) {
+        this.projectId = projectId;
     }
 
     @Override
@@ -80,7 +90,8 @@ public class MatrixStorage {
                 ", j=" + j +
                 ", matrixValue=" + matrixValue +
                 ", projectName='" + projectName + '\'' +
-                ", username='" + username + '\'' +
+                ", userId=" + userId +
+                ", projectId=" + projectId +
                 '}';
     }
 }
