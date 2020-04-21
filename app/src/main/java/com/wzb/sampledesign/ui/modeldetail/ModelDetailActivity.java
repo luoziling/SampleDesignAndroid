@@ -21,6 +21,7 @@ import com.qmuiteam.qmui.util.QMUIColorHelper;
 import com.qmuiteam.qmui.widget.roundwidget.QMUIRoundButton;
 import com.wzb.sampledesign.R;
 import com.wzb.sampledesign.pojo.TreeNodeContent;
+import com.wzb.sampledesign.pojo.result.CommonResult;
 import com.wzb.sampledesign.ui.ConclusionActivity;
 import com.wzb.sampledesign.ui.asynctask.CalculateThread;
 import com.wzb.sampledesign.ui.asynctask.GetCriteriaThread;
@@ -441,6 +442,21 @@ public class ModelDetailActivity extends AppCompatActivity implements View.OnCli
 						showToast("数据计算成功");
 						calFlag = true;
 						confirmButton.setText("查看结论");
+						// http请求成功
+						// 回复的json转为对象
+						CommonResult result = FastjsonUtil.from(msgBundle.getString("response"), CommonResult.class);
+						Log.e("result",result.toString());
+						// 显示验证信息
+						showToast(result.getReviews());
+						// 判断验证是否成功
+//						if (result.isFlag()){
+//							// 开启结论表格
+//							Intent intent = new Intent(getActivity(), ConclusionActivity.class);
+//							startActivity(intent);
+//
+//						}else {
+//							// 计算出错/重试
+//						}
 					}else{
 						showToast("数据计算失败");
 						// 在这里可以重试重新计算

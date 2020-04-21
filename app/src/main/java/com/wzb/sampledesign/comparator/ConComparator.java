@@ -12,7 +12,17 @@ import java.util.Comparator;
 public class ConComparator implements Comparator<Conclusion> {
 	@Override
 	public int compare(Conclusion conclusion, Conclusion t1) {
-		if (conclusion.getPriority()>t1.getPriority()){
+		// 从小到大排
+//		if (conclusion.getPriority()>t1.getPriority()){
+//			return 1;
+//		}else if (conclusion.getPriority()==t1.getPriority()){
+//			return 0;
+//		}else{
+//			return -1;
+//		}
+
+		// 从大到小排
+		if (conclusion.getPriority()<t1.getPriority()){
 			return 1;
 		}else if (conclusion.getPriority()==t1.getPriority()){
 			return 0;

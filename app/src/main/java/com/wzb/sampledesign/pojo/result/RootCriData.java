@@ -22,13 +22,19 @@ public class RootCriData {
     private String projectName;
     private List<String> nextList;
 
+    // 项目和用户id
+    private Integer projectID;
+    private Integer userID;
+
     public RootCriData() {
     }
 
-    public RootCriData(Double[][] data, String projectName, List<String> nextList) {
+    public RootCriData(Double[][] data, String projectName, List<String> nextList, Integer projectID, Integer userID) {
         this.data = data;
         this.projectName = projectName;
         this.nextList = nextList;
+        this.projectID = projectID;
+        this.userID = userID;
     }
 
     public Double[][] getData() {
@@ -55,12 +61,30 @@ public class RootCriData {
         this.nextList = nextList;
     }
 
+    public Integer getProjectID() {
+        return projectID;
+    }
+
+    public void setProjectID(Integer projectID) {
+        this.projectID = projectID;
+    }
+
+    public Integer getUserID() {
+        return userID;
+    }
+
+    public void setUserID(Integer userID) {
+        this.userID = userID;
+    }
+
     @Override
     public String toString() {
         return "RootCriData{" +
                 "data=" + Arrays.toString(data) +
                 ", projectName='" + projectName + '\'' +
                 ", nextList=" + nextList +
+                ", projectID=" + projectID +
+                ", userID=" + userID +
                 '}';
     }
 }

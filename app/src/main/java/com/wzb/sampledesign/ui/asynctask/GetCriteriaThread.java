@@ -31,7 +31,7 @@ public class GetCriteriaThread implements Runnable {
 	public void run() {
 		Log.e("GetCriteriaThread","1");
 
-		String url = Constant.urlHead+"/project_service/getNodes/上海市骨科挂号决策支持";
+		String url = Constant.zuulDBHead+"/treenode_content/selByPi/" + Constant.PROJECTID;
 
 		Message message = new Message();
 		Bundle msgBundle = new Bundle();

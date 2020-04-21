@@ -35,6 +35,7 @@ import com.wzb.sampledesign.util.FastjsonUtil;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -58,6 +59,7 @@ public class ConclusionActivity extends AppCompatActivity implements AdapterView
 
 	private List<Conclusion> conList;
 	private List<DocInfo2> docList;
+	private List<Integer> planList;
 
 
 	private QMUIListPopup mListPopup;
@@ -95,6 +97,7 @@ public class ConclusionActivity extends AppCompatActivity implements AdapterView
 	}
 
 	private void initData() {
+		onDataLoaded();
 //		mListView.setLayoutManager(new LinearLayoutManager(getContext()) {
 //			@Override
 //			public RecyclerView.LayoutParams generateDefaultLayoutParams() {
@@ -198,7 +201,11 @@ public class ConclusionActivity extends AppCompatActivity implements AdapterView
 
 //			DetailAdapter detailAdapter = new DetailAdapter(this,docList,position);
 			Bundle bundle = new Bundle();
-			bundle.putString("conDetail",gson.toJson(docList.get(position)));
+			// 修改，排序过了
+//			bundle.putString("conDetail",gson.toJson(docList.get(position)));
+
+//			bundle.putString("conDetail",gson.toJson(docList.get(planList.get(position)-1)));
+			bundle.putString("conDetail",gson.toJson(docList.get(planList.get(position))));
 			// 直接开启新页面粗暴解决
 			Intent detailIntent = new Intent(this,DetailActivity.class);
 			detailIntent.putExtras(bundle);
@@ -459,6 +466,8 @@ public class ConclusionActivity extends AppCompatActivity implements AdapterView
 		}
 		@Override
 		public void handleMessage(@NonNull Message msg) {
+			planList = new ArrayList<>();
+			List<Integer> mapList = new ArrayList<>();
 			Log.e("receive","message");
 
 			// 更新UI
@@ -467,15 +476,29 @@ public class ConclusionActivity extends AppCompatActivity implements AdapterView
 			String docJson = data.getString("docList");
 			conList = FastjsonUtil.jsonToList(conJson,Conclusion.class);
 			docList = FastjsonUtil.jsonToList(docJson,DocInfo2.class);
-			for (int i = 0; i < 10; i++) {
-				conList.get(i).setPlan(docList.get(i).getDocname());
-			}
+//			for (int i = 0; i < conList.size(); i++) {
+//				// 保存plan
+//				planList.add(Integer.parseInt(conList.get(i).getPlan()));
+//				// 替换为医生姓名
+//				conList.get(i).setPlan(docList.get(i).getDocname());
+//
+//			}
 
 
 
 			System.out.println("排序前:" + conList.toString());
 			Collections.sort(conList,new ConComparator());
+//			conList.get(0).get
 			System.out.println("排序后:" + conList.toString());
+			for (int i = 0; i < conList.size(); i++) {
+				// 保存plan
+//				planList.add(Integer.parseInt(conList.get(i).getPlan()));
+				planList.add(Integer.parseInt(conList.get(i).getPlan())-1);
+				// 替换为医生姓名
+				conList.get(i).setPlan(docList.get(planList.get(i)).getDocname());
+
+			}
+
 			ConclusionAdapater adapater = new ConclusionAdapater(context,conList);
 			conListView.setAdapter(adapater);
 

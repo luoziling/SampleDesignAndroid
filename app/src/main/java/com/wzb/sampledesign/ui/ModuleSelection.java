@@ -11,6 +11,7 @@ import android.widget.Button;
 
 import com.wzb.sampledesign.R;
 import com.wzb.sampledesign.ui.expertentry.ExpertEntryActivity;
+import com.wzb.sampledesign.ui.modelselect.ModelSelectActivity;
 
 public class ModuleSelection extends AppCompatActivity implements View.OnClickListener {
 	@BindView(R.id.expertButton)
@@ -42,6 +43,9 @@ public class ModuleSelection extends AppCompatActivity implements View.OnClickLi
 				startActivity(intent);
 				break;
 			case R.id.generalButton:
+				// 跳转到 挂号决策支持系统
+				Intent intent1 = new Intent(this, ModelSelectActivity.class);
+				startActivity(intent1);
 				break;
 			case R.id.groupButton:
 				break;

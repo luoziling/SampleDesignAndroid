@@ -32,7 +32,7 @@ public class GetAllModelThread implements Runnable {
 	public void run() {
 		Log.e("GetAllModelThread","1");
 
-		String url = Constant.urlHead1+"/project_information/get_all";
+		String url = Constant.zuulDBHead+"/project_information/selAll";
 		Message message = new Message();
 		Bundle msgBundle = new Bundle();
 		Log.e("url",url);

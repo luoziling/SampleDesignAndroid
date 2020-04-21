@@ -50,7 +50,7 @@ public class SaveMSThread implements Runnable {
 	public void run() {
 		Log.e("saveMS","SaveThread");
 
-		String url = Constant.urlHead1+"/matrix_storage/insOrUpdByMS";
+		String url = Constant.zuulDBHead+"/matrix_storage/insOrUpdByMS";
 
 		Message message = new Message();
 		Bundle msgBundle = new Bundle();
@@ -69,6 +69,9 @@ public class SaveMSThread implements Runnable {
 			// 此Demo中只有一层准则层那么value就是根节点内容就是项目名
 			matrixStorage.setValue(Constant.PROJECT_NAME);
 			matrixStorage.setProjectName(Constant.PROJECT_NAME);
+			// 设置projectID和userID
+			matrixStorage.setProjectId(Constant.PROJECTID);
+			matrixStorage.setUserId(Constant.loginUser.getId());
 			for (int i = 0; i < criNum; i++) {
 				for (int j = 0; j < criNum; j++) {
 					System.out.print(judgmentMatrix[i][j] + " ");
@@ -124,7 +127,7 @@ public class SaveMSThread implements Runnable {
 		}
 
 
-		RootCriData rootCriData = new RootCriData(judgmentMatrix,"上海市骨科挂号决策支持",criteriaList);
+		RootCriData rootCriData = new RootCriData(judgmentMatrix,"上海市骨科挂号决策支持",criteriaList,Constant.PROJECTID,Constant.loginUser.getId());
 
 		String norUrl = Constant.urlHead+"/calculation_service/norcal_andsave";
 		OkHttpUtils

@@ -3,6 +3,7 @@ package com.wzb.sampledesign.ui.modelselect;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -24,6 +25,7 @@ import android.widget.Toast;
 import com.qmuiteam.qmui.widget.pullRefreshLayout.QMUIPullRefreshLayout;
 import com.wzb.sampledesign.R;
 import com.wzb.sampledesign.pojo.ProjectInformation;
+import com.wzb.sampledesign.ui.modeldetail.ModelDetailActivity;
 import com.wzb.sampledesign.util.Constant;
 import com.wzb.sampledesign.util.FastjsonUtil;
 
@@ -115,13 +117,15 @@ public class ModelSelect extends Fragment implements AdapterView.OnItemClickList
 
 		// 修改目前模型的常量
 		Constant.PROJECT_NAME = modelList.get(i).getProjectName();
+		Constant.PROJECTID = modelList.get(i).getId();
 		// 开启新的决策界面
 		// todo:尝试用fragment替换
 
 //		Bundle bundle = new Bundle();
 //		bundle.putString("conDetail",gson.toJson(docList.get(position)));
 //		// 直接开启新页面粗暴解决
-//		Intent detailIntent = new Intent(this,DetailActivity.class);
+//		Intent detailIntent = new Intent(this, DetailActivity.class);
+//		Intent detailIntent = new Intent(this, DetailActivity.class);
 //		detailIntent.putExtras(bundle);
 //		startActivity(detailIntent);
 	}

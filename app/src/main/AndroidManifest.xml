@@ -42,7 +42,7 @@
             android:parentActivityName=".ui.modelselect.ModelSelectActivity" />
         <activity
             android:name=".ui.modelselect.ModelSelectActivity"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".ui.ModuleSelection" />
         <activity
             android:name=".ui.DetailActivity"
             android:parentActivityName=".ui.ConclusionActivity" />

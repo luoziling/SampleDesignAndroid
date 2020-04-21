@@ -674,7 +674,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
 				System.out.println();
 			}
 
-			RootCriData rootCriData = new RootCriData(judgmentMatrix,"上海市骨科挂号决策支持",criteriaList);
+			RootCriData rootCriData = new RootCriData(judgmentMatrix,"上海市骨科挂号决策支持",criteriaList,Constant.PROJECTID,Constant.loginUser.getId());
 
 			String norUrl = Constant.urlHead+"/calculation_service/norcal_andsave";
 			OkHttpUtils

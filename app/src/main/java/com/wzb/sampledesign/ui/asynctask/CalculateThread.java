@@ -5,11 +5,14 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.wzb.sampledesign.pojo.jsonwrapper.ConcalWrapper;
 import com.wzb.sampledesign.util.Constant;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
 import okhttp3.Call;
+import okhttp3.MediaType;
 
 /**
  * Date: 2019/10/17
@@ -31,16 +34,22 @@ public class CalculateThread implements Runnable {
 	public void run() {
 		Log.e("CalculateThread","1");
 
-		String url = Constant.urlHead+"/calculation_service/conclusion_calculation";
+		String url = Constant.zuulbusinessHead+"/calculation_service/concalGeneral";
 		Log.e("url",url);
+		ConcalWrapper concalWrapper = new ConcalWrapper();
+		concalWrapper.setUserID(Constant.loginUser.getId());
+		concalWrapper.setProjectName(Constant.PROJECT_NAME);
+		concalWrapper.setProjectID(Constant.PROJECTID);
 
 		Message message = new Message();
 		Bundle msgBundle = new Bundle();
 		message.what = Constant.CALCULATE_MESSAGE;
 		// 改用okhttp交互
 		OkHttpUtils
-				.get()
+				.postString()
 				.url(url)
+				.content(new Gson().toJson(concalWrapper))
+				.mediaType(MediaType.get("application/json; charset=utf-8"))
 				.build()
 				.execute(new StringCallback() {
 					@Override
@@ -58,6 +67,7 @@ public class CalculateThread implements Runnable {
 
 //						message.what = Constant.CALCULATE_MESSAGE;
 						msgBundle.putBoolean("result",true);
+						msgBundle.putString("response",response);
 						message.setData(msgBundle);
 						handler.sendMessage(message);
 

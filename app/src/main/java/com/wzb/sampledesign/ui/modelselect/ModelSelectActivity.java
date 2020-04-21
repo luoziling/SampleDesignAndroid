@@ -54,7 +54,8 @@ public class ModelSelectActivity extends AppCompatActivity implements AdapterVie
 	private void initData() {
 
 //		mListView.setAdapter(mAdapter);
-//		onDataLoaded();
+		// 进入就刷新数据
+		onDataLoaded();
 		mPullRefreshLayout.setOnPullListener(new QMUIPullRefreshLayout.OnPullListener() {
 			@Override
 			public void onMoveTarget(int offset) {
@@ -104,6 +105,7 @@ public class ModelSelectActivity extends AppCompatActivity implements AdapterVie
 
 		// 修改目前模型的常量
 		Constant.PROJECT_NAME = modelList.get(i).getProjectName();
+		Constant.PROJECTID = modelList.get(i).getId();
 		// 开启新的决策界面
 		// todo:尝试用fragment替换
 		// 算了。。老老实实Activity
