@@ -13,6 +13,18 @@ public class AdjacentClosure {
 
     private Integer projectId;
 
+    @Override
+    public String toString() {
+        return "AdjacentClosure{" +
+                "id=" + id +
+                ", projectName='" + projectName + '\'' +
+                ", ancestor=" + ancestor +
+                ", descendant=" + descendant +
+                ", depth=" + depth +
+                ", projectId=" + projectId +
+                '}';
+    }
+
     public Integer getId() {
         return id;
     }
@@ -61,15 +73,4 @@ public class AdjacentClosure {
         this.projectId = projectId;
     }
 
-    @Override
-    public String toString() {
-        return "AdjacentClosure{" +
-                "id=" + id +
-                ", projectName='" + projectName + '\'' +
-                ", ancestor=" + ancestor +
-                ", descendant=" + descendant +
-                ", depth=" + depth +
-                ", projectId=" + projectId +
-                '}';
-    }
 }

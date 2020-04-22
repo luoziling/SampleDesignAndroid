@@ -17,6 +17,20 @@ public class MatrixStorage {
 
     private Integer projectId;
 
+    @Override
+    public String toString() {
+        return "MatrixStorage{" +
+                "id=" + id +
+                ", value='" + value + '\'' +
+                ", i=" + i +
+                ", j=" + j +
+                ", matrixValue=" + matrixValue +
+                ", projectName='" + projectName + '\'' +
+                ", userId=" + userId +
+                ", projectId=" + projectId +
+                '}';
+    }
+
     public Integer getId() {
         return id;
     }
@@ -79,19 +93,5 @@ public class MatrixStorage {
 
     public void setProjectId(Integer projectId) {
         this.projectId = projectId;
-    }
-
-    @Override
-    public String toString() {
-        return "MatrixStorage{" +
-                "id=" + id +
-                ", value='" + value + '\'' +
-                ", i=" + i +
-                ", j=" + j +
-                ", matrixValue=" + matrixValue +
-                ", projectName='" + projectName + '\'' +
-                ", userId=" + userId +
-                ", projectId=" + projectId +
-                '}';
     }
 }

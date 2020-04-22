@@ -13,6 +13,18 @@ public class Conclusion {
 
     private Integer userId;
 
+    @Override
+    public String toString() {
+        return "Conclusion{" +
+                "id=" + id +
+                ", projectName='" + projectName + '\'' +
+                ", plan='" + plan + '\'' +
+                ", priority=" + priority +
+                ", projectId=" + projectId +
+                ", userId=" + userId +
+                '}';
+    }
+
     public Integer getId() {
         return id;
     }
@@ -59,17 +71,5 @@ public class Conclusion {
 
     public void setUserId(Integer userId) {
         this.userId = userId;
-    }
-
-    @Override
-    public String toString() {
-        return "Conclusion{" +
-                "id=" + id +
-                ", projectName='" + projectName + '\'' +
-                ", plan='" + plan + '\'' +
-                ", priority=" + priority +
-                ", projectId=" + projectId +
-                ", userId=" + userId +
-                '}';
     }
 }

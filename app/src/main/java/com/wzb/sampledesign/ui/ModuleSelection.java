@@ -18,8 +18,10 @@ public class ModuleSelection extends AppCompatActivity implements View.OnClickLi
 	Button expertButton;
 	@BindView(R.id.generalButton)
 	Button generalButton;
-	@BindView(R.id.groupButton)
-	Button groupButton;
+//	@BindView(R.id.groupButton)
+//	Button groupButton;
+	@BindView(R.id.personalInformationButton)
+	Button editPIButton;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +31,7 @@ public class ModuleSelection extends AppCompatActivity implements View.OnClickLi
 
 		expertButton.setOnClickListener(this);
 		generalButton.setOnClickListener(this);
-		groupButton.setOnClickListener(this);
+		editPIButton.setOnClickListener(this);
 
 
 	}
@@ -47,7 +49,12 @@ public class ModuleSelection extends AppCompatActivity implements View.OnClickLi
 				Intent intent1 = new Intent(this, ModelSelectActivity.class);
 				startActivity(intent1);
 				break;
-			case R.id.groupButton:
+//			case R.id.groupButton:
+//				break;
+			case R.id.personalInformationButton:
+				// 编辑个人信息
+				Intent intent2 = new Intent(this, EditUserInfoActivity.class);
+				startActivity(intent2);
 				break;
 		}
 	}

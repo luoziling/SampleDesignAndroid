@@ -15,6 +15,19 @@ public class NormalizationWeight {
 
     private Integer projectId;
 
+    @Override
+    public String toString() {
+        return "NormalizationWeight{" +
+                "id=" + id +
+                ", projectName='" + projectName + '\'' +
+                ", value='" + value + '\'' +
+                ", nextValue='" + nextValue + '\'' +
+                ", weight=" + weight +
+                ", userId=" + userId +
+                ", projectId=" + projectId +
+                '}';
+    }
+
     public Integer getId() {
         return id;
     }
@@ -69,18 +82,5 @@ public class NormalizationWeight {
 
     public void setProjectId(Integer projectId) {
         this.projectId = projectId;
-    }
-
-    @Override
-    public String toString() {
-        return "NormalizationWeight{" +
-                "id=" + id +
-                ", projectName='" + projectName + '\'' +
-                ", value='" + value + '\'' +
-                ", nextValue='" + nextValue + '\'' +
-                ", weight=" + weight +
-                ", userId=" + userId +
-                ", projectId=" + projectId +
-                '}';
     }
 }

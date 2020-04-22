@@ -23,6 +23,23 @@ public class DocInfo2 {
 
     private String ncomment;
 
+    @Override
+    public String toString() {
+        return "DocInfo2{" +
+                "id=" + id +
+                ", docname='" + docname + '\'' +
+                ", docid='" + docid + '\'' +
+                ", departments='" + departments + '\'' +
+                ", occ='" + occ + '\'' +
+                ", napm='" + napm + '\'' +
+                ", nacc='" + nacc + '\'' +
+                ", erate='" + erate + '\'' +
+                ", tuweiprice='" + tuweiprice + '\'' +
+                ", shihuaprice='" + shihuaprice + '\'' +
+                ", ncomment='" + ncomment + '\'' +
+                '}';
+    }
+
     public Integer getId() {
         return id;
     }
@@ -109,22 +126,5 @@ public class DocInfo2 {
 
     public void setNcomment(String ncomment) {
         this.ncomment = ncomment == null ? null : ncomment.trim();
-    }
-
-    @Override
-    public String toString() {
-        return "DocInfo2{" +
-                "id=" + id +
-                ", docname='" + docname + '\'' +
-                ", docid='" + docid + '\'' +
-                ", departments='" + departments + '\'' +
-                ", occ='" + occ + '\'' +
-                ", napm='" + napm + '\'' +
-                ", nacc='" + nacc + '\'' +
-                ", erate='" + erate + '\'' +
-                ", tuweiprice='" + tuweiprice + '\'' +
-                ", shihuaprice='" + shihuaprice + '\'' +
-                ", ncomment='" + ncomment + '\'' +
-                '}';
     }
 }

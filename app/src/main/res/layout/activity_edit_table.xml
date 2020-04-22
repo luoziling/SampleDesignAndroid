@@ -10,39 +10,64 @@
 
     >
    <!--tools:context="com.bin.david.smarttable.ParseModeActivity"-->
-<LinearLayout
-    android:id="@+id/ll_bottom"
-    android:layout_width="match_parent"
-    android:orientation="horizontal"
-    android:layout_alignParentBottom="true"
-    android:layout_height="wrap_content">
 
-<!--   <EditText-->
-<!--       android:id="@+id/edit_query"-->
-<!--       android:layout_width="261dp"-->
+<!--   <Button-->
+<!--       android:id="@+id/tv_query"-->
+<!--       android:layout_width="wrap_content"-->
 <!--       android:layout_height="40dp"-->
-<!--       android:layout_weight="1"-->
-<!--       android:focusable="true"-->
-<!--       android:focusableInTouchMode="true" />-->
+<!--       android:layout_alignBottom="@+id/table"-->
+<!--       android:layout_alignParentStart="true"-->
+<!--       android:layout_alignParentEnd="true"-->
+<!--       android:layout_centerHorizontal="true"-->
+<!--       android:layout_marginStart="151dp"-->
+<!--       android:layout_marginEnd="172dp"-->
+<!--       android:layout_marginBottom="25dp"-->
+<!--       android:background="@drawable/dialog_btn_bg"-->
+<!--       android:clickable="true"-->
+<!--       android:onClick="onClick"-->
+<!--       android:text="Tab"-->
+<!--       android:textColor="#fff"-->
+<!--       android:textSize="16dp"-->
+<!--       android:textStyle="bold"-->
+<!--       app:layout_constraintBottom_toBottomOf="parent"-->
+<!--       app:layout_constraintEnd_toEndOf="parent"-->
+<!--       app:layout_constraintStart_toStartOf="parent" />-->
 
-   <Button
-       android:id="@+id/tv_query"
+   <LinearLayout
+       android:id="@+id/ll_bottom"
        android:layout_width="wrap_content"
-       android:layout_height="40dp"
-       android:layout_marginStart="8dp"
-       android:layout_marginEnd="8dp"
-       android:layout_marginBottom="4dp"
-       android:background="@drawable/dialog_btn_bg"
-       android:clickable="true"
-       android:onClick="onClick"
-       android:text="Tab"
-       android:textColor="#fff"
-       android:textSize="16dp"
-       android:textStyle="bold"
-       app:layout_constraintBottom_toBottomOf="parent"
-       app:layout_constraintEnd_toEndOf="parent"
-       app:layout_constraintStart_toStartOf="parent" />
-</LinearLayout>
+       android:layout_height="wrap_content"
+       android:layout_alignParentBottom="true"
+       android:layout_centerInParent="true"
+       android:orientation="horizontal">
+
+      <!--   <EditText-->
+      <!--       android:id="@+id/edit_query"-->
+      <!--       android:layout_width="261dp"-->
+      <!--       android:layout_height="40dp"-->
+      <!--       android:layout_weight="1"-->
+      <!--       android:focusable="true"-->
+      <!--       android:focusableInTouchMode="true" />-->
+
+      <Button
+          android:id="@+id/tv_query"
+          android:layout_width="wrap_content"
+          android:layout_height="40dp"
+          android:layout_marginStart="8dp"
+          android:layout_marginEnd="8dp"
+          android:layout_marginBottom="4dp"
+          android:background="@drawable/dialog_btn_bg"
+          android:clickable="true"
+          android:onClick="onClick"
+          android:text="保存矩阵"
+          android:textColor="#fff"
+          android:textSize="16dp"
+          android:textStyle="bold"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent" />
+   </LinearLayout>
+
    <com.bin.david.form.core.SmartTable
        android:id="@+id/table"
 
@@ -50,9 +75,9 @@
        android:layout_height="match_parent"
        android:layout_above="@id/ll_bottom"
 
-      />
-
-
+       android:layout_alignParentStart="true"
+       android:layout_marginStart="2dp"
+       android:layout_marginBottom="9dp" />
 
 
 </RelativeLayout>

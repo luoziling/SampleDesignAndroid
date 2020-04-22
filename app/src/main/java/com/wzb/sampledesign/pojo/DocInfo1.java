@@ -11,6 +11,17 @@ public class DocInfo1 {
 
     private String department;
 
+    @Override
+    public String toString() {
+        return "DocInfo1{" +
+                "id=" + id +
+                ", docname='" + docname + '\'' +
+                ", docid='" + docid + '\'' +
+                ", dochospital='" + dochospital + '\'' +
+                ", department='" + department + '\'' +
+                '}';
+    }
+
     public Integer getId() {
         return id;
     }
@@ -49,16 +60,5 @@ public class DocInfo1 {
 
     public void setDepartment(String department) {
         this.department = department == null ? null : department.trim();
-    }
-
-    @Override
-    public String toString() {
-        return "DocInfo1{" +
-                "id=" + id +
-                ", docname='" + docname + '\'' +
-                ", docid='" + docid + '\'' +
-                ", dochospital='" + dochospital + '\'' +
-                ", department='" + department + '\'' +
-                '}';
     }
 }

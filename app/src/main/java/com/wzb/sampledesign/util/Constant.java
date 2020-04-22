@@ -65,6 +65,8 @@ public class Constant {
 	public static final int GETMATRIX = 9;
 	public static final int SAVEMATRIX = 10;
 	public static final int CONCAL = 11;
+	public static final int REGISTER = 12;
+	public static final int EDITUSERINFO = 13;
 
 
 	// 记录下一层节点/方案信息 用于创建判断矩阵

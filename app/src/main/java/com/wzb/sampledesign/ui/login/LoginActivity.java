@@ -31,6 +31,7 @@ import com.wzb.sampledesign.R;
 import com.wzb.sampledesign.pojo.EcUser;
 import com.wzb.sampledesign.pojo.result.UserResult;
 import com.wzb.sampledesign.ui.ModuleSelection;
+import com.wzb.sampledesign.ui.UserInfoActivity;
 import com.wzb.sampledesign.ui.asynctask.usertask.LoginVerificationThread;
 import com.wzb.sampledesign.util.Constant;
 import com.wzb.sampledesign.util.FastjsonUtil;
@@ -131,18 +132,32 @@ public class LoginActivity extends AppCompatActivity {
 			@Override
 			public void onClick(View v) {
 				// 监听点击事件
-				loadingProgressBar.setVisibility(View.VISIBLE);
+
 //				loginViewModel.login(usernameEditText.getText().toString(),
 //						passwordEditText.getText().toString());
-				// 登陆验证
-				// 封装信息
-				EcUser user = new EcUser();
-				user.setUsername(usernameEditText.getText().toString());
-				user.setPassword(passwordEditText.getText().toString());
-				// 开启子线程通过网络去验证用户信息
-				loginVerificationThread  = new LoginVerificationThread(loginHandler,user);
-				asyncThread = new Thread(loginVerificationThread);
-				asyncThread.start();
+				// 逻辑分离，如果用户名与密码都未输入内容则跳转到注册界面
+				String username = usernameEditText.getText().toString();
+				String password = passwordEditText.getText().toString();
+				// 如果输入了内容则验证登陆信息
+				if (username.length()==0&&password.length()==0){
+					// 用户名与密码都为空则进入用户注册界面
+					Intent intent = new Intent(getApplicationContext(), UserInfoActivity.class);
+					startActivity(intent);
+				}else {
+					// 显示等待循环
+					loadingProgressBar.setVisibility(View.VISIBLE);
+					// 登陆验证
+					// 封装信息
+					EcUser user = new EcUser();
+					user.setUsername(username);
+					user.setPassword(password);
+					// 开启子线程通过网络去验证用户信息
+					loginVerificationThread  = new LoginVerificationThread(loginHandler,user);
+					asyncThread = new Thread(loginVerificationThread);
+					asyncThread.start();
+				}
+
+
 
 //				// 测试用直接进入界面查看
 //				Intent intent = new Intent(getApplicationContext(),ModuleSelection.class);

@@ -9,6 +9,16 @@ public class TreeNodeContent {
 
     private Integer projectId;
 
+    @Override
+    public String toString() {
+        return "TreeNodeContent{" +
+                "id=" + id +
+                ", value='" + value + '\'' +
+                ", projectName='" + projectName + '\'' +
+                ", projectId=" + projectId +
+                '}';
+    }
+
     public Integer getId() {
         return id;
     }
@@ -39,15 +49,5 @@ public class TreeNodeContent {
 
     public void setProjectId(Integer projectId) {
         this.projectId = projectId;
-    }
-
-    @Override
-    public String toString() {
-        return "TreeNodeContent{" +
-                "id=" + id +
-                ", value='" + value + '\'' +
-                ", projectName='" + projectName + '\'' +
-                ", projectId=" + projectId +
-                '}';
     }
 }

@@ -9,6 +9,16 @@ public class ProjectInformation {
 
     private Integer userId;
 
+    @Override
+    public String toString() {
+        return "ProjectInformation{" +
+                "id=" + id +
+                ", projectName='" + projectName + '\'' +
+                ", layer=" + layer +
+                ", userId=" + userId +
+                '}';
+    }
+
     public Integer getId() {
         return id;
     }
@@ -39,15 +49,5 @@ public class ProjectInformation {
 
     public void setUserId(Integer userId) {
         this.userId = userId;
-    }
-
-    @Override
-    public String toString() {
-        return "ProjectInformation{" +
-                "id=" + id +
-                ", projectName='" + projectName + '\'' +
-                ", layer=" + layer +
-                ", userId=" + userId +
-                '}';
     }
 }
